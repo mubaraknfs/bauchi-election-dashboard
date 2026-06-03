@@ -1,9 +1,25 @@
 import React, {
   useEffect,
-  useState
+  useState,
+  useCallback
 } from "react";
 
 import axios from "axios";
+
+/*
+====================================
+API URL
+====================================
+*/
+
+const API_URL =
+  "https://bauchi-election-dashboard.onrender.com";
+
+/*
+====================================
+COMPONENT
+====================================
+*/
 
 function AdminPanel() {
 
@@ -32,9 +48,7 @@ function AdminPanel() {
   */
 
   const token =
-    localStorage.getItem(
-      "token"
-    );
+    localStorage.getItem("token");
 
   /*
   ====================================
@@ -43,34 +57,34 @@ function AdminPanel() {
   */
 
   const fetchUsers =
-    async () => {
+    useCallback(async () => {
 
       try {
 
         const response =
           await axios.get(
 
-            "http://localhost:5000/api/users",
+            `${API_URL}/api/users`,
 
             {
-
               headers: {
-
                 authorization:
-                  token
+                  `Bearer ${token}`
               }
             }
           );
 
-        setUsers(
-          response.data
-        );
+        setUsers(response.data);
 
       } catch (error) {
 
-        console.error(error);
+        console.error(
+          "FETCH USERS ERROR:",
+          error
+        );
       }
-    };
+
+    }, [token]);
 
   /*
   ====================================
@@ -80,9 +94,9 @@ function AdminPanel() {
 
   useEffect(() => {
 
-  fetchUsers();
+    fetchUsers();
 
-}, [fetchUsers]);
+  }, [fetchUsers]);
 
   /*
   ====================================
@@ -104,63 +118,73 @@ function AdminPanel() {
 
   /*
   ====================================
+  RESET FORM
+  ====================================
+  */
+
+  const resetForm = () => {
+
+    setFormData({
+
+      full_name: "",
+      email: "",
+      password: "",
+      role: "observer"
+    });
+  };
+
+  /*
+  ====================================
   CREATE USER
   ====================================
   */
 
   const createUser =
-  async () => {
+    async () => {
 
-    try {
+      try {
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
+        const response =
+          await axios.post(
 
-      const response =
-        await axios.post(
+            `${API_URL}/api/create-user`,
 
-          "http://localhost:5000/api/create-user",
+            formData,
 
-          formData,
-
-          {
-
-            headers: {
-
-              authorization:
-                token
+            {
+              headers: {
+                authorization:
+                  `Bearer ${token}`
+              }
             }
-          }
+          );
+
+        console.log(response.data);
+
+        alert(
+          "User created successfully"
         );
 
-      console.log(
-        response.data
-      );
+        resetForm();
 
-      alert(
-        "User created successfully"
-      );
+        fetchUsers();
 
-      fetchUsers();
+      } catch (error) {
 
-    } catch (error) {
+        console.error(
+          error.response?.data
+        );
 
-      console.error(
-        error.response?.data
-      );
+        alert(
 
-      alert(
+          error.response?.data?.message
 
-        error.response?.data?.message
+          ||
 
-        ||
-
-        "Failed to create user"
-      );
-    }
-  };
+          "Failed to create user"
+        );
+      }
+    };
 
   /*
   ====================================
@@ -175,21 +199,17 @@ function AdminPanel() {
 
         await axios.delete(
 
-          `http://localhost:5000/api/users/${id}`,
+          `${API_URL}/api/users/${id}`,
 
           {
-
             headers: {
-
               authorization:
-                token
+                `Bearer ${token}`
             }
           }
         );
 
-        alert(
-          "User deleted"
-        );
+        alert("User deleted");
 
         fetchUsers();
 
@@ -203,6 +223,12 @@ function AdminPanel() {
       }
     };
 
+  /*
+  ====================================
+  RENDER
+  ====================================
+  */
+
   return (
 
     <div style={containerStyle}>
@@ -211,57 +237,43 @@ function AdminPanel() {
         User Management
       </h2>
 
-      {/* ================================= */}
+      {/* ================================ */}
       {/* CREATE USER FORM */}
-      {/* ================================= */}
+      {/* ================================ */}
 
       <div style={cardStyle}>
 
         <input
-
           type="text"
-
           name="full_name"
-
           placeholder="Full Name"
-
           style={inputStyle}
-
+          value={formData.full_name}
           onChange={handleChange}
         />
 
         <input
-
           type="email"
-
           name="email"
-
           placeholder="Email"
-
           style={inputStyle}
-
+          value={formData.email}
           onChange={handleChange}
         />
 
         <input
-
           type="password"
-
           name="password"
-
           placeholder="Password"
-
           style={inputStyle}
-
+          value={formData.password}
           onChange={handleChange}
         />
 
         <select
-
           name="role"
-
           style={inputStyle}
-
+          value={formData.role}
           onChange={handleChange}
         >
 
@@ -280,9 +292,7 @@ function AdminPanel() {
         </select>
 
         <button
-
           style={buttonStyle}
-
           onClick={createUser}
         >
 
@@ -292,9 +302,9 @@ function AdminPanel() {
 
       </div>
 
-      {/* ================================= */}
+      {/* ================================ */}
       {/* USERS TABLE */}
-      {/* ================================= */}
+      {/* ================================ */}
 
       <div style={cardStyle}>
 
@@ -354,24 +364,26 @@ function AdminPanel() {
                   <td style={tdStyle}>
 
                     {
-  user.role !==
-    "super_admin"
+                      user.role !==
+                      "super_admin"
 
-    &&
+                      &&
 
-    <button
+                      <button
 
-      style={deleteButtonStyle}
+                        style={
+                          deleteButtonStyle
+                        }
 
-      onClick={() =>
-        deleteUser(user.id)
-      }
-    >
+                        onClick={() =>
+                          deleteUser(user.id)
+                        }
+                      >
 
-      Delete
+                        Delete
 
-    </button>
-}
+                      </button>
+                    }
 
                   </td>
 
