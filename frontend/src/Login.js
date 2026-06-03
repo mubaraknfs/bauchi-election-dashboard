@@ -12,47 +12,72 @@ function Login() {
   const [password, setPassword] =
     useState("");
 
-  const handleLogin =
-    async () => {
+const handleLogin = async () => {
 
-      try {
+  try {
 
-        const response =
-          await axios.post(
+    console.log("LOGIN EMAIL:", email);
+    console.log("LOGIN PASSWORD:", password);
 
-            "http://localhost:5000/api/login",
+    const response =
+      await axios.post(
 
-            {
-              email,
-              password
-            }
-          );
+        "https://bauchi-election-dashboard.onrender.com/api/login",
 
-        localStorage.setItem(
+        {
+          email: email.trim(),
+          password: password.trim()
+        }
+      );
 
-          "token",
+    console.log(
+      "LOGIN RESPONSE:",
+      response.data
+    );
 
-          response.data.token
-        );
+    if (response.data.success) {
 
-        localStorage.setItem(
+      localStorage.setItem(
+        "token",
+        response.data.token
+      );
 
-          "user",
+      localStorage.setItem(
 
-          JSON.stringify(
-            response.data.user
-          )
-        );
+        "user",
 
-        window.location.reload();
+        JSON.stringify(
+          response.data.user
+        )
+      );
 
-      } catch (error) {
+      alert("Login successful");
 
-        alert(
-          "Invalid credentials"
-        );
-      }
-    };
+      window.location.reload();
+
+    } else {
+
+      alert(
+        response.data.message
+      );
+    }
+
+  } catch (error) {
+
+    console.error(
+      "LOGIN ERROR:",
+      error.response?.data ||
+      error.message
+    );
+
+    alert(
+
+      error.response?.data?.message ||
+
+      "Invalid credentials"
+    );
+  }
+};
 
   return (
 
