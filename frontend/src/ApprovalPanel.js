@@ -54,36 +54,23 @@ function ApprovalPanel() {
   ====================================
   */
 
-  const fetchPendingResults =
-    useCallback(async () => {
-
-      try {
-
-        const response =
-          await axios.get(
-
-            "https://bauchi-election-dashboard.onrender.com/api/pending-results",
-
-            {
-
-              headers: {
-
-                authorization:
-                  `Bearer ${token}`
-              }
-            }
-          );
-
-        setPendingResults(
-          response.data
-        );
-
-      } catch (error) {
-
-        console.error(error);
+  const fetchPendingResults = useCallback(async () => {
+  try {
+    const response = await axios.get(
+      "https://bauchi-election-dashboard.onrender.com/api/pending-results",
+      {
+        headers: {
+          authorization: `Bearer ${token}`
+        }
       }
+    );
 
-    }, [token]);
+    setPendingResults(response.data);
+
+  } catch (error) {
+    console.error(error);
+  }
+}, [token]);
 
   /*
   ====================================
@@ -105,24 +92,15 @@ function ApprovalPanel() {
 
   useEffect(() => {
 
-    socket.on(
+  socket.on("new_result", () => {
+    fetchPendingResults();
+  });
 
-      "new_result",
+  return () => {
+    socket.off("new_result");
+  };
 
-      () => {
-
-        fetchPendingResults();
-      }
-    );
-
-    return () => {
-
-      socket.off(
-        "new_result"
-      );
-    };
-
-  }, [fetchPendingResults]);
+}, [fetchPendingResults]);
 
   /*
   ====================================
