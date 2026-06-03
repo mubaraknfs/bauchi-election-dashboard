@@ -467,61 +467,65 @@ app.post(
 
     try {
 
-      const {
+      console.log("REQ BODY:", req.body);
 
+      const {
         email,
         password
-
       } = req.body;
 
+      console.log("EMAIL:", email);
+      console.log("PASSWORD:", password);
+
       const result =
-  await pool.query(
+        await pool.query(
 
-    `
-    SELECT *
-    FROM users
-    WHERE LOWER(TRIM(email)) =
-          LOWER(TRIM($1))
-    `,
+          `
+          SELECT *
+          FROM users
+          WHERE LOWER(TRIM(email)) =
+                LOWER(TRIM($1))
+          `,
 
-    [email]
-  );
+          [email]
+        );
 
-      if (
-        result.rows.length === 0
-      ) {
+      console.log(
+        "ROWS FOUND:",
+        result.rows.length
+      );
+
+      if (result.rows.length === 0) {
 
         return res.status(401).json({
 
           success: false,
 
           message:
-  "Invalid credentials"
+            "Invalid credentials"
         });
       }
 
       const user =
         result.rows[0];
 
-      console.log("EMAIL FROM FORM:", email);
+      console.log(
+        "DB HASH:",
+        user.password
+      );
 
-console.log("USER FOUND:", user);
+      const validPassword =
+        await bcrypt.compare(
 
-console.log("HASH:", user.password);
+          String(password).trim(),
 
-      const cleanPassword =
-  String(password).trim();
+          String(user.password).trim()
+        );
 
-const validPassword =
-  await bcrypt.compare(
-    cleanPassword,
-    user.password
-  );
-
-console.log(
-  "PASSWORD MATCH:",
-  validPassword
-);
+      console.log(
+        "PASSWORD MATCH:",
+        validPassword
+      );
 
       if (!validPassword) {
 
@@ -530,7 +534,7 @@ console.log(
           success: false,
 
           message:
-  "Invalid credentials"
+            "Invalid credentials"
         });
       }
 
@@ -538,16 +542,13 @@ console.log(
         jwt.sign(
 
           {
-
             id: user.id,
-
             role: user.role
           },
 
           process.env.JWT_SECRET,
 
           {
-
             expiresIn: "1d"
           }
         );
@@ -575,14 +576,17 @@ console.log(
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "LOGIN ERROR:",
+        error
+      );
 
       res.status(500).json({
 
         success: false,
 
         message:
-          "Login failed"
+          "Server error"
       });
     }
   }
