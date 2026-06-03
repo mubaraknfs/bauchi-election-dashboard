@@ -1,6 +1,9 @@
 import React, {
+
   useEffect,
-  useState
+  useState,
+  useCallback
+
 } from "react";
 
 import axios from "axios";
@@ -9,12 +12,14 @@ import { io } from "socket.io-client";
 
 /*
 ====================================
-SOCKET
+SOCKET CONNECTION
 ====================================
 */
 
-const socket =
-  io("http://localhost:5000");
+const socket = io(
+
+  "https://bauchi-election-dashboard.onrender.com"
+);
 
 function ApprovalPanel() {
 
@@ -50,22 +55,22 @@ function ApprovalPanel() {
   */
 
   const fetchPendingResults =
-    async () => {
+    useCallback(async () => {
 
       try {
 
         const response =
           await axios.get(
 
-            "http://localhost:5000/api/pending-results",
+            "https://bauchi-election-dashboard.onrender.com/api/pending-results",
 
             {
 
               headers: {
 
-  authorization:
-    `Bearer ${token}`
-}
+                authorization:
+                  `Bearer ${token}`
+              }
             }
           );
 
@@ -77,7 +82,8 @@ function ApprovalPanel() {
 
         console.error(error);
       }
-    };
+
+    }, [token]);
 
   /*
   ====================================
@@ -85,9 +91,11 @@ function ApprovalPanel() {
   ====================================
   */
 
- useEffect(() => {
+  useEffect(() => {
 
-  fetchPendingResults();
+    fetchPendingResults();
+
+  }, [fetchPendingResults]);
 
   /*
   ====================================
@@ -95,24 +103,26 @@ function ApprovalPanel() {
   ====================================
   */
 
-  socket.on(
+  useEffect(() => {
 
-    "new_result",
+    socket.on(
 
-    () => {
+      "new_result",
 
-      fetchPendingResults();
-    }
-  );
+      () => {
 
-  return () => {
-
-    socket.off(
-      "new_result"
+        fetchPendingResults();
+      }
     );
-  };
 
-}, []);
+    return () => {
+
+      socket.off(
+        "new_result"
+      );
+    };
+
+  }, [fetchPendingResults]);
 
   /*
   ====================================
@@ -127,7 +137,7 @@ function ApprovalPanel() {
 
         await axios.put(
 
-          `http://localhost:5000/api/approve-result/${id}`,
+          `https://bauchi-election-dashboard.onrender.com/api/approve-result/${id}`,
 
           {},
 
@@ -135,9 +145,9 @@ function ApprovalPanel() {
 
             headers: {
 
-  authorization:
-    `Bearer ${token}`
-}
+              authorization:
+                `Bearer ${token}`
+            }
           }
         );
 
@@ -170,7 +180,7 @@ function ApprovalPanel() {
 
         await axios.put(
 
-          `http://localhost:5000/api/reject-result/${id}`,
+          `https://bauchi-election-dashboard.onrender.com/api/reject-result/${id}`,
 
           {},
 
@@ -178,9 +188,9 @@ function ApprovalPanel() {
 
             headers: {
 
-  authorization:
-    `Bearer ${token}`
-}
+              authorization:
+                `Bearer ${token}`
+            }
           }
         );
 
@@ -241,6 +251,7 @@ function ApprovalPanel() {
         <tbody>
 
           {
+
             pendingResults.map((result) => (
 
               <tr key={result.id}>

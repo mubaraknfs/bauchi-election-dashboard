@@ -76,11 +76,11 @@ function AuditLogs() {
   ====================================
   */
 
-  useEffect(() => {
+ useEffect(() => {
 
-    fetchLogs();
+  fetchLogs();
 
-  }, []);
+}, [fetchLogs]);
 
   return (
 

@@ -44,7 +44,7 @@ SOCKET CONNECTION
 */
 
 const socket = io(
-  "http://localhost:5000"
+  "https://bauchi-election-dashboard.onrender.com"
 );
 
 function App() {
@@ -192,7 +192,7 @@ const [
 
       const response =
         await axios.get(
-          "http://localhost:5000/api/parties"
+          "https://bauchi-election-dashboard.onrender.com/api/parties"
         );
 
       setParties(response.data);
@@ -228,7 +228,7 @@ const fetchLgas =
       const response =
         await axios.get(
 
-          "http://localhost:5000/api/lgas"
+          "https://bauchi-election-dashboard.onrender.com/api/lgas"
         );
 
       setLgas(
@@ -261,7 +261,7 @@ const fetchLgas =
       const response =
         await axios.get(
 
-          `http://localhost:5000/api/polling-units/${wardId}`
+          `https://bauchi-election-dashboard.onrender.com/api/polling-units/${wardId}`
         );
 
       console.log(
@@ -294,7 +294,7 @@ const fetchLgas =
 
       const response =
         await axios.get(
-          "http://localhost:5000/results"
+          "https://bauchi-election-dashboard.onrender.com/results"
         );
 
       setResults(response.data);
@@ -324,7 +324,7 @@ const fetchOvervotingData =
       const response =
         await axios.get(
 
-          "http://localhost:5000/api/overvoting",
+          "https://bauchi-election-dashboard.onrender.com/api/overvoting",
 
           {
 
@@ -360,7 +360,7 @@ const fetchOvervotingData =
 
         const response =
           await axios.get(
-            "http://localhost:5000/api/all-ward-summaries"
+            "https://bauchi-election-dashboard.onrender.com/api/all-ward-summaries"
           );
 
         setAllWardSummaries(
@@ -386,7 +386,7 @@ const fetchOvervotingData =
 
         const response =
           await axios.get(
-            "http://localhost:5000/api/lga-summaries"
+            "https://bauchi-election-dashboard.onrender.com/api/lga-summaries"
           );
 
         setLgaSummaries(
@@ -412,7 +412,7 @@ const fetchOvervotingData =
 
         const response =
           await axios.get(
-            "http://localhost:5000/api/state-summary"
+            "https://bauchi-election-dashboard.onrender.com/api/state-summary"
           );
 
         setStateSummary(
@@ -444,7 +444,7 @@ const fetchAuditLogs =
       const response =
         await axios.get(
 
-          "http://localhost:5000/api/audit-logs",
+          "https://bauchi-election-dashboard.onrender.com/api/audit-logs",
 
           {
 
@@ -644,7 +644,7 @@ if (
 const response =
   await axios.post(
 
-    "http://localhost:5000/submit-result",
+    "https://bauchi-election-dashboard.onrender.com/submit-result",
 
     finalData,
 
@@ -922,7 +922,7 @@ return (
       const response =
         await axios.get(
 
-          `http://localhost:5000/api/wards-by-lga/${lgaId}`
+          `https://bauchi-election-dashboard.onrender.com/api/wards-by-lga/${lgaId}`
         );
 
       console.log(
@@ -1049,7 +1049,7 @@ return (
       const response =
         await axios.get(
 
-          `http://localhost:5000/api/polling-units/${wardId}`
+          `https://bauchi-election-dashboard.onrender.com/api/polling-units/${wardId}`
         );
 
       console.log(

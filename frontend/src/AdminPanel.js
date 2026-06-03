@@ -80,9 +80,9 @@ function AdminPanel() {
 
   useEffect(() => {
 
-    fetchUsers();
+  fetchUsers();
 
-  }, []);
+}, [fetchUsers]);
 
   /*
   ====================================
