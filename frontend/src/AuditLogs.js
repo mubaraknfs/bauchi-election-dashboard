@@ -1,64 +1,44 @@
 import React, {
-
   useEffect,
   useState
-
 } from "react";
 
 import axios from "axios";
 
 function AuditLogs() {
 
-  /*
-  ====================================
-  STATES
-  ====================================
-  */
-
-  const [
-
-    logs,
-
-    setLogs
-
-  ] = useState([]);
-
-  /*
-  ====================================
-  TOKEN
-  ====================================
-  */
-
-  const token =
-    localStorage.getItem(
-      "token"
-    );
-
-  /*
-  ====================================
-  FETCH LOGS
-  ====================================
-  */
+  const [logs, setLogs] =
+    useState([]);
 
   const fetchLogs =
     async () => {
 
       try {
 
+        const token =
+          localStorage.getItem(
+            "token"
+          );
+
         const response =
           await axios.get(
 
-            "http://localhost:5000/api/audit-logs",
+            "https://bauchi-election-dashboard.onrender.com/api/audit-logs",
 
             {
 
               headers: {
 
-                authorization:
+                Authorization:
                   `Bearer ${token}`
               }
             }
           );
+
+        console.log(
+          "AUDIT LOGS:",
+          response.data
+        );
 
         setLogs(
           response.data
@@ -70,21 +50,15 @@ function AuditLogs() {
       }
     };
 
-  /*
-  ====================================
-  LOAD LOGS
-  ====================================
-  */
+  useEffect(() => {
 
- useEffect(() => {
+    fetchLogs();
 
-  fetchLogs();
-
-}, [fetchLogs]);
+  }, []);
 
   return (
 
-    <div style={containerStyle}>
+    <div style={cardStyle}>
 
       <h2>
         Audit Logs
@@ -96,29 +70,17 @@ function AuditLogs() {
 
           <tr>
 
-            <th style={thStyle}>
-              ID
-            </th>
+            <th>ID</th>
 
-            <th style={thStyle}>
-              User ID
-            </th>
+            <th>User ID</th>
 
-            <th style={thStyle}>
-              Role
-            </th>
+            <th>Role</th>
 
-            <th style={thStyle}>
-              Action
-            </th>
+            <th>Action</th>
 
-            <th style={thStyle}>
-              Description
-            </th>
+            <th>Description</th>
 
-            <th style={thStyle}>
-              Time
-            </th>
+            <th>Time</th>
 
           </tr>
 
@@ -127,33 +89,25 @@ function AuditLogs() {
         <tbody>
 
           {
+
             logs.map((log) => (
 
               <tr key={log.id}>
 
-                <td style={tdStyle}>
-                  {log.id}
-                </td>
+                <td>{log.id}</td>
 
-                <td style={tdStyle}>
-                  {log.user_id}
-                </td>
+                <td>{log.user_id}</td>
 
-                <td style={tdStyle}>
-                  {log.user_role}
-                </td>
+                <td>{log.user_role}</td>
 
-                <td style={tdStyle}>
-                  {log.action_type}
-                </td>
+                <td>{log.action_type}</td>
 
-                <td style={tdStyle}>
-                  {log.action_description}
-                </td>
+                <td>{log.action_description}</td>
 
-                <td style={tdStyle}>
+                <td>
 
                   {
+
                     new Date(
                       log.created_at
                     ).toLocaleString()
@@ -173,42 +127,24 @@ function AuditLogs() {
   );
 }
 
-/*
-====================================
-STYLES
-====================================
-*/
+const cardStyle = {
 
-const containerStyle = {
+  border: "1px solid #ccc",
 
-  marginTop: "30px"
+  borderRadius: "10px",
+
+  padding: "20px",
+
+  marginBottom: "20px",
+
+  backgroundColor: "#fff"
 };
 
 const tableStyle = {
 
   width: "100%",
 
-  borderCollapse: "collapse",
-
-  backgroundColor: "#fff"
-};
-
-const thStyle = {
-
-  border: "1px solid #ccc",
-
-  padding: "12px",
-
-  backgroundColor: "#f0f0f0"
-};
-
-const tdStyle = {
-
-  border: "1px solid #ccc",
-
-  padding: "12px",
-
-  textAlign: "center"
+  borderCollapse: "collapse"
 };
 
 export default AuditLogs;

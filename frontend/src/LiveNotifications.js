@@ -1,65 +1,10 @@
-import React, {
+import React from "react";
 
-  useEffect,
-  useState
+function LiveNotifications({
 
-} from "react";
+  notifications = []
 
-import { io } from "socket.io-client";
-
-/*
-====================================
-SOCKET CONNECTION
-====================================
-*/
-
-const socket =
-  io("http://localhost:5000");
-
-function LiveNotifications() {
-
-  const [
-
-    notifications,
-
-    setNotifications
-
-  ] = useState([]);
-
-  /*
-  ====================================
-  SOCKET LISTENER
-  ====================================
-  */
-
-  useEffect(() => {
-
-    socket.on(
-
-      "notification",
-
-      (data) => {
-
-        setNotifications(
-
-          (prev) => [
-
-            data,
-
-            ...prev
-          ]
-        );
-      }
-    );
-
-    return () => {
-
-      socket.off(
-        "notification"
-      );
-    };
-
-  }, []);
+}) {
 
   return (
 
@@ -73,41 +18,39 @@ function LiveNotifications() {
 
         notifications.length === 0
 
-          ?
+        ? (
 
           <p>
             No notifications yet
           </p>
 
-          :
+        ) : (
 
-          notifications.map(
+          notifications.map((item, index) => (
 
-            (note, index) => (
+            <div
 
-              <div
+              key={index}
 
-                key={index}
+              style={notificationStyle}
+            >
 
-                style={notificationStyle}
-              >
+              <strong>
+                {item.type?.toUpperCase()}
+              </strong>
 
-                🔔 {note.message}
+              <p>
+                {item.message}
+              </p>
 
-              </div>
-            )
-          )
+            </div>
+          ))
+        )
       }
 
     </div>
   );
 }
-
-/*
-====================================
-STYLES
-====================================
-*/
 
 const cardStyle = {
 
@@ -124,10 +67,9 @@ const cardStyle = {
 
 const notificationStyle = {
 
-  padding: "10px",
+  borderBottom: "1px solid #eee",
 
-  borderBottom:
-    "1px solid #eee"
+  padding: "10px 0"
 };
 
 export default LiveNotifications;

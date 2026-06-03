@@ -131,6 +131,11 @@ const [
   setAuditLogs
 ] = useState([]);
 
+const [
+  notifications,
+  setNotifications
+] = useState([]);
+
   const [partyVotes, setPartyVotes] =
     useState({});
 
@@ -516,6 +521,26 @@ fetchOvervotingData();
     }
   );
 
+  socket.on(
+
+  "notification",
+
+  (data) => {
+
+    console.log(
+      "NEW NOTIFICATION:",
+      data
+    );
+
+    setNotifications((prev) => [
+
+      data,
+
+      ...prev
+    ]);
+  }
+);
+
   return () => {
 
   
@@ -850,7 +875,9 @@ return (
       </button>
 
     </div>
- <LiveNotifications />
+ <LiveNotifications
+  notifications={notifications}
+/>
 
       {/* ================================= */}
       {/* RESULT SUBMISSION */}
