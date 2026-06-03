@@ -94,36 +94,13 @@ DATABASE CONNECTION
 
 const pool = new Pool({
 
-  user:
-    process.env.DB_USER,
+  connectionString:
+    process.env.DATABASE_URL,
 
-  host:
-    process.env.DB_HOST,
-
-  database:
-    process.env.DB_NAME,
-
-  password:
-    process.env.DB_PASSWORD,
-
-  port:
-    process.env.DB_PORT
-});
-
-pool.query(
-
-  "SELECT current_database()",
-
-  (err, res) => {
-
-    console.log(
-
-      "CONNECTED DATABASE:",
-
-      res.rows[0]
-    );
+  ssl: {
+    rejectUnauthorized: false
   }
-);
+});
 
 /*
 ====================================
