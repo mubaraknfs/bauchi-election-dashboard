@@ -28,11 +28,11 @@ CORS
 */
 
 app.use(
-
   cors({
-
-    origin: "http://localhost:3000",
-
+    origin: [
+      "http://localhost:3000",
+      "https://bauchi-election-dashboard.vercel.app"
+    ],
     credentials: true
   })
 );
@@ -77,7 +77,10 @@ const io = new Server(server, {
   cors: {
 
     origin:
-      "http://localhost:3000",
+      [
+        "http://localhost:3000",
+        "https://bauchi-election-dashboard.vercel.app"
+      ],
 
     methods:
       ["GET", "POST"],
@@ -472,16 +475,17 @@ app.post(
       } = req.body;
 
       const result =
-        await pool.query(
+  await pool.query(
 
-          `
-          SELECT *
-          FROM users
-          WHERE email = $1
-          `,
+    `
+    SELECT *
+    FROM users
+    WHERE LOWER(TRIM(email)) =
+          LOWER(TRIM($1))
+    `,
 
-          [email]
-        );
+    [email]
+  );
 
       if (
         result.rows.length === 0
@@ -499,13 +503,25 @@ app.post(
       const user =
         result.rows[0];
 
-      const validPassword =
-        await bcrypt.compare(
+      console.log("EMAIL FROM FORM:", email);
 
-          password,
+console.log("USER FOUND:", user);
 
-          user.password
-        );
+console.log("HASH:", user.password);
+
+      const cleanPassword =
+  String(password).trim();
+
+const validPassword =
+  await bcrypt.compare(
+    cleanPassword,
+    user.password
+  );
+
+console.log(
+  "PASSWORD MATCH:",
+  validPassword
+);
 
       if (!validPassword) {
 
