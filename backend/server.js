@@ -262,6 +262,76 @@ app.get("/db-test", async (req, res) => {
     });
   }
 });
+
+app.post("/debug-login", async (req, res) => {
+
+  try {
+
+    const { email, password } = req.body;
+
+    console.log("EMAIL:", email);
+    console.log("PASSWORD:", password);
+
+    const userResult =
+      await pool.query(
+        "SELECT * FROM users WHERE email = $1",
+        [email]
+      );
+
+    console.log(
+      "USER FOUND:",
+      userResult.rows.length
+    );
+
+    if (userResult.rows.length === 0) {
+
+      return res.json({
+        success: false,
+        message: "No user found"
+      });
+    }
+
+    const user =
+      userResult.rows[0];
+
+    console.log(
+      "HASH FROM DB:",
+      user.password
+    );
+
+    const isMatch =
+      await bcrypt.compare(
+        password,
+        user.password
+      );
+
+    console.log(
+      "PASSWORD MATCH:",
+      isMatch
+    );
+
+    res.json({
+
+      success: true,
+
+      match: isMatch,
+
+      user
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+
+      success: false,
+
+      error: error.message
+    });
+  }
+});
+
 /*
 ====================================
 GET ALL LGAS
