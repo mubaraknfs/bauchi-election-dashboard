@@ -263,6 +263,22 @@ app.get("/db-test", async (req, res) => {
   }
 });
 
+app.get("/test-password", async (req, res) => {
+
+  const hash =
+    "$2b$10$3GIPU4LT7pbHwt0JFM1e9OKi3kCNYgUpeqGG6mPfumA3XtcmONRfa";
+
+  const match =
+    await bcrypt.compare(
+      "admin123",
+      hash
+    );
+
+  res.json({
+    match
+  });
+});
+
 app.post("/debug-login", async (req, res) => {
 
   try {
