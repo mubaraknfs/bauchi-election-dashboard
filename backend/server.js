@@ -666,6 +666,17 @@ app.post(
       const user =
         result.rows[0];
 
+      if (!user.is_active) {
+
+  return res.status(403).json({
+
+    success: false,
+
+    message:
+      "Account disabled. Contact administrator."
+  });
+}
+
       console.log(
         "DB HASH:",
         user.password
@@ -1015,6 +1026,32 @@ app.put(
             "User not found"
         });
       }
+
+      const roleCheck =
+  await pool.query(
+
+    `
+    SELECT role
+    FROM users
+    WHERE id = $1
+    `,
+
+    [id]
+  );
+
+if (
+  roleCheck.rows[0].role ===
+  "super_admin"
+) {
+
+  return res.status(403).json({
+
+    success: false,
+
+    message:
+      "Super admin cannot be disabled"
+  });
+}
 
       const newStatus =
         !user.rows[0].is_active;
@@ -1527,25 +1564,28 @@ NEGATIVE VALUE VALIDATION
 ====================================
 */
 
-if (
+if (!data.cancelled) {
 
-  Number(data.total_vote_cast) < 0 ||
+  if (
 
-  Number(data.valid_vote) < 0 ||
+    Number(data.total_vote_cast) < 0 ||
 
-  Number(data.accredited_card) < 0 ||
+    Number(data.valid_vote) < 0 ||
 
-  Number(data.registered_card) < 0
+    Number(data.accredited_card) < 0 ||
 
-) {
+    Number(data.registered_card) < 0
 
-  return res.status(400).json({
+  ) {
 
-    success: false,
+    return res.status(400).json({
 
-    message:
-      "Negative values are not allowed"
-  });
+      success: false,
+
+      message:
+        "Negative values are not allowed"
+    });
+  }
 }
 
 /*
@@ -1630,119 +1670,116 @@ VALIDATION RULES
 ====================================
 */
 
-/* ACCREDITED > REGISTERED */
+if (!data.cancelled) {
 
-if (accredited > registered) {
+  if (accredited > registered) {
 
-  return res.status(400).json({
+    return res.status(400).json({
+      success: false,
+      message:
+        "Accredited voters cannot exceed registered voters"
+    });
+  }
 
-    success: false,
+  if (totalCast > accredited) {
 
-    message:
-      "Accredited voters cannot exceed registered voters"
-  });
-}
+    return res.status(400).json({
+      success: false,
+      message:
+        "Total votes cast cannot exceed accredited voters"
+    });
+  }
 
-/* TOTAL CAST > ACCREDITED */
+  if ((valid + rejected) !== totalCast) {
 
-if (totalCast > accredited) {
+    return res.status(400).json({
+      success: false,
+      message:
+        "Valid votes plus rejected votes must equal total votes cast"
+    });
+  }
 
-  return res.status(400).json({
+  if (totalPartyVotes > valid) {
 
-    success: false,
-
-    message:
-      "Total votes cast cannot exceed accredited voters"
-  });
-}
-
-/* VALID + REJECTED */
-
-if ((valid + rejected) !== totalCast) {
-
-  return res.status(400).json({
-
-    success: false,
-
-    message:
-      "Valid votes plus rejected votes must equal total votes cast"
-  });
-}
-
-/* PARTY TOTAL */
-
-if (totalPartyVotes > valid) {
-
-  return res.status(400).json({
-
-    success: false,
-
-    message:
-      "Party votes exceed valid votes"
-  });
+    return res.status(400).json({
+      success: false,
+      message:
+        "Party votes exceed valid votes"
+    });
+  }
 }
 
       const query = `
 
-        INSERT INTO results (
+     INSERT INTO results (
 
-          ward,
-          polling_unit,
+  ward,
+  polling_unit,
+  cancelled,
+  cancellation_reason,
+  cancellation_comment,
 
-          registered_card,
-          accredited_card,
-          total_vote_cast,
-          total_vote_rejected,
-          valid_vote,
+  registered_card,
+  accredited_card,
+  total_vote_cast,
+  total_vote_rejected,
+  valid_vote,
 
-          accord,
-          aa,
-          aac,
-          adc,
-          adp,
-          apc,
-          apga,
-          apm,
-          app,
-          bp,
-          dla,
-          lp,
-          ndc,
-          nnpp,
-          nrm,
-          pdp,
-          prp,
-          sdp,
-          yp,
-          ypp,
-          zlp,
+  accord,
+  aa,
+  aac,
+  adc,
+  adp,
+  apc,
+  apga,
+  apm,
+  app,
+  bp,
+  dla,
+  lp,
+  ndc,
+  nnpp,
+  nrm,
+  pdp,
+  prp,
+  sdp,
+  yp,
+  ypp,
+  zlp,
 
-          party_agent,
-          phone_number,
-          presiding_officer,
-          status
+  party_agent,
+  phone_number,
+  presiding_officer,
+  status
 
-        )
+)
 
-        VALUES (
+VALUES (
 
-          $1,$2,$3,$4,$5,$6,$7,
-          $8,$9,$10,$11,$12,$13,
-          $14,$15,$16,$17,$18,
-          $19,$20,$21,$22,$23,
-          $24,$25,$26,$27,$28,
-          $29,$30,$31,$32
+$1,$2,$3,$4,$5,
+$6,$7,$8,$9,$10,
+$11,$12,$13,$14,$15,
+$16,$17,$18,$19,$20,
+$21,$22,$23,$24,$25,
+$26,$27,$28,$29,$30,
+$31,$32,$33,$34,$35
 
-        )
+)
 
-        RETURNING *;
+RETURNING *;
 
       `;
 
       const values = [
 
-        data.ward,
-        data.polling_unit,
+  data.ward,
+  data.polling_unit,
+
+  data.cancelled || false,
+
+  data.cancellation_reason || null,
+
+  data.cancellation_comment || null,
 
         data.registered_card,
         data.accredited_card,
@@ -1890,6 +1927,52 @@ app.get(
 
         message:
           "Failed to fetch results"
+      });
+    }
+  }
+);
+
+/*
+====================================
+CANCELLED RESULTS
+====================================
+*/
+
+app.get(
+
+  "/api/cancelled-results",
+
+  auth,
+
+  async (req, res) => {
+
+    try {
+
+      const result =
+        await pool.query(
+
+          `
+          SELECT *
+          FROM results
+          WHERE cancelled = TRUE
+          ORDER BY id DESC
+          `
+        );
+
+      res.json(
+        result.rows
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to fetch cancelled elections"
       });
     }
   }
