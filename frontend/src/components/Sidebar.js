@@ -36,6 +36,12 @@ const menuItems = [
   },
 
   {
+  label: "Cancelled Elections",
+  path: "/cancelled-results",
+  icon: "🚫"
+},
+
+  {
     name: "Notifications",
     path: "/notifications"
   },

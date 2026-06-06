@@ -1517,6 +1517,8 @@ app.post(
     try {
 
       const data = req.body;
+      console.log("REQUEST BODY:");
+      console.log(JSON.stringify(data, null, 2)); 
 /*
 ====================================
 CHECK DUPLICATE RESULT
@@ -1874,18 +1876,28 @@ await createNotification(
           result.rows[0]
       });
 
-    } catch (error) {
+    } 
+    catch (error) {
 
-      console.error(error);
+  console.log("================================");
+  console.log("SUBMIT RESULT ERROR");
+  console.log("================================");
 
-      res.status(500).json({
+  console.log(error);
 
-        success: false,
+  if (error.detail)
+    console.log("DETAIL:", error.detail);
 
-        message:
-          "Failed to save result"
-      });
-    }
+  if (error.message)
+    console.log("MESSAGE:", error.message);
+
+  res.status(500).json({
+
+    success: false,
+
+    message: error.message
+  });
+}
   }
 );
 

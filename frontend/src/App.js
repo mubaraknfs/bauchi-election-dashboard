@@ -1,3 +1,5 @@
+import CancelledResults
+from "./CancelledResults";
 import NotificationsDashboard
 from "./pages/NotificationsDashboard";
 import StateDashboard
@@ -928,6 +930,15 @@ return (
   path="/notifications"
   element={
     <NotificationsDashboard />
+  }
+/>
+
+<Route
+
+  path="/cancelled-results"
+
+  element={
+    <CancelledResults />
   }
 />
 

@@ -256,48 +256,74 @@ function ResultSubmission() {
     };
 
   const submitResult =
-    async () => {
+  async () => {
 
-      try {
+    try {
 
-        const token =
-          localStorage.getItem(
-            "token"
+      /*
+      ====================================
+      CANCELLED POLLING UNIT VALIDATION
+      ====================================
+      */
+
+      if (isCancelled) {
+
+        if (
+
+          !formData.cancellation_reason ||
+
+          !formData.party_agent ||
+
+          !formData.phone_number
+
+        ) {
+
+          alert(
+            "Cancellation reason, party agent and phone number are required"
           );
 
-        const response =
-          await axios.post(
-
-            `${API_URL}/submit-result`,
-
-            formData,
-
-            {
-
-              headers: {
-
-                Authorization:
-                  `Bearer ${token}`
-              }
-            }
-          );
-
-        alert(
-          response.data.message
-        );
-
-      } catch (error) {
-
-        console.error(error);
-
-        alert(
-
-          error.response?.data?.message ||
-
-          "Failed to submit result"
-        );
+          return;
+        }
       }
-    };
+
+      const token =
+        localStorage.getItem(
+          "token"
+        );
+
+      const response =
+        await axios.post(
+
+          `${API_URL}/submit-result`,
+
+          formData,
+
+          {
+
+            headers: {
+
+              Authorization:
+                `Bearer ${token}`
+            }
+          }
+        );
+
+      alert(
+        response.data.message
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+
+        error.response?.data?.message ||
+
+        "Failed to submit result"
+      );
+    }
+  };
 
   return (
 
@@ -552,13 +578,14 @@ function ResultSubmission() {
   )
 }
         <input
-          type="number"
-          name="registered_card"
-          placeholder="Registered Card"
-          style={inputStyle}
-          value={formData.registered_card}
-          onChange={handleChange}
-        />
+        type="number"
+        name="registered_card"
+        placeholder="Registered Card"
+        style={inputStyle}
+        value={formData.registered_card}
+        onChange={handleChange}
+        disabled={isCancelled}
+      />
 
         <input
           type="number"
@@ -567,6 +594,7 @@ function ResultSubmission() {
           style={inputStyle}
           value={formData.accredited_card}
           onChange={handleChange}
+          disabled={isCancelled}
         />
 
         <input
@@ -576,6 +604,7 @@ function ResultSubmission() {
           style={inputStyle}
           value={formData.total_vote_cast}
           onChange={handleChange}
+          disabled={isCancelled}
         />
 
         <input
@@ -585,6 +614,7 @@ function ResultSubmission() {
           style={inputStyle}
           value={formData.total_vote_rejected}
           onChange={handleChange}
+          disabled={isCancelled}
         />
 
         <input
@@ -594,6 +624,7 @@ function ResultSubmission() {
           style={inputStyle}
           value={formData.valid_vote}
           onChange={handleChange}
+          disabled={isCancelled}
         />
 
         {
@@ -671,6 +702,7 @@ function ResultSubmission() {
           style={inputStyle}
           value={formData.presiding_officer}
           onChange={handleChange}
+          disabled={isCancelled}
         />
 
         <button
