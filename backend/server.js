@@ -943,6 +943,7 @@ app.get(
   email,
   phone_number,
   role,
+  is_active,
   created_at
 
 FROM users
@@ -963,6 +964,90 @@ ORDER BY id DESC
 
         message:
           "Failed to fetch users"
+      });
+    }
+  }
+);
+
+/*
+====================================
+TOGGLE USER STATUS
+====================================
+*/
+
+app.put(
+
+  "/api/users/:id/status",
+
+  auth,
+
+  authorizeRoles(
+    "super_admin"
+  ),
+
+  async (req, res) => {
+
+    try {
+
+      const { id } = req.params;
+
+      const user =
+        await pool.query(
+
+          `
+          SELECT is_active
+          FROM users
+          WHERE id = $1
+          `,
+
+          [id]
+        );
+
+      if (
+        user.rows.length === 0
+      ) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            "User not found"
+        });
+      }
+
+      const newStatus =
+        !user.rows[0].is_active;
+
+      await pool.query(
+
+        `
+        UPDATE users
+        SET is_active = $1
+        WHERE id = $2
+        `,
+
+        [
+          newStatus,
+          id
+        ]
+      );
+
+      res.json({
+
+        success: true,
+
+        is_active:
+          newStatus
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+
+        success: false
       });
     }
   }
