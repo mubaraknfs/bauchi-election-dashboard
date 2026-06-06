@@ -1,12 +1,21 @@
 import React, {
-
   useEffect,
   useState
-
 } from "react";
+
+import axios from "axios";
 
 import { io }
 from "socket.io-client";
+
+/*
+====================================
+API
+====================================
+*/
+
+const API_URL =
+  "https://bauchi-election-dashboard.onrender.com";
 
 /*
 ====================================
@@ -14,9 +23,7 @@ SOCKET
 ====================================
 */
 
-const socket = io(
-  "http://localhost:5000"
-);
+const socket = io(API_URL);
 
 function Notifications() {
 
@@ -27,26 +34,109 @@ function Notifications() {
   */
 
   const [
-
     notifications,
-
     setNotifications
-
   ] = useState([]);
+
+  const [
+    loading,
+    setLoading
+  ] = useState(true);
 
   /*
   ====================================
-  REALTIME EVENTS
+  LOAD NOTIFICATIONS
+  ====================================
+  */
+
+  const fetchNotifications =
+    async () => {
+
+      try {
+
+        const response =
+          await axios.get(
+            `${API_URL}/api/notifications`
+          );
+
+        if (
+          response.data &&
+          response.data.notifications
+        ) {
+
+          setNotifications(
+            response.data.notifications
+          );
+
+        } else if (
+          Array.isArray(
+            response.data
+          )
+        ) {
+
+          setNotifications(
+            response.data
+          );
+        }
+
+      } catch (error) {
+
+        console.error(
+          "Fetch Notification Error:",
+          error
+        );
+
+      } finally {
+
+        setLoading(false);
+      }
+    };
+
+  /*
+  ====================================
+  MARK ALL READ
+  ====================================
+  */
+
+  const markNotificationsRead =
+    async () => {
+
+      try {
+
+        await axios.put(
+          `${API_URL}/api/notifications/read-all`
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Read Notification Error:",
+          error
+        );
+      }
+    };
+
+  /*
+  ====================================
+  INITIAL LOAD
   ====================================
   */
 
   useEffect(() => {
 
-    /*
-    ====================================
-    RESULT SUBMITTED
-    ====================================
-    */
+    fetchNotifications();
+
+    markNotificationsRead();
+
+  }, []);
+
+  /*
+  ====================================
+  REALTIME SOCKET EVENTS
+  ====================================
+  */
+
+  useEffect(() => {
 
     socket.on(
 
@@ -55,16 +145,15 @@ function Notifications() {
       (message) => {
 
         setNotifications(
-
           (prev) => [
 
             {
-
-              type: "success",
-
-              text: message,
-
-              id: Date.now()
+              id: Date.now(),
+              event_type:
+                "SUBMISSION",
+              message,
+              created_at:
+                new Date()
             },
 
             ...prev
@@ -72,12 +161,6 @@ function Notifications() {
         );
       }
     );
-
-    /*
-    ====================================
-    RESULT APPROVED
-    ====================================
-    */
 
     socket.on(
 
@@ -86,16 +169,15 @@ function Notifications() {
       (message) => {
 
         setNotifications(
-
           (prev) => [
 
             {
-
-              type: "info",
-
-              text: message,
-
-              id: Date.now()
+              id: Date.now(),
+              event_type:
+                "APPROVAL",
+              message,
+              created_at:
+                new Date()
             },
 
             ...prev
@@ -104,12 +186,6 @@ function Notifications() {
       }
     );
 
-    /*
-    ====================================
-    RESULT REJECTED
-    ====================================
-    */
-
     socket.on(
 
       "rejection_notification",
@@ -117,16 +193,15 @@ function Notifications() {
       (message) => {
 
         setNotifications(
-
           (prev) => [
 
             {
-
-              type: "error",
-
-              text: message,
-
-              id: Date.now()
+              id: Date.now(),
+              event_type:
+                "REJECTION",
+              message,
+              created_at:
+                new Date()
             },
 
             ...prev
@@ -152,64 +227,176 @@ function Notifications() {
 
   }, []);
 
+  /*
+  ====================================
+  BADGE COLOR
+  ====================================
+  */
+
+  const getBadgeColor =
+    (type) => {
+
+      switch (type) {
+
+        case "APPROVAL":
+          return "#16a34a";
+
+        case "REJECTION":
+          return "#dc2626";
+
+        case "SUBMISSION":
+          return "#2563eb";
+
+        case "SYSTEM":
+          return "#7c3aed";
+
+        default:
+          return "#475569";
+      }
+    };
+
   return (
 
-    <div style={containerStyle}>
+    <div style={pageStyle}>
 
-      <h2>
-        Live Notifications
-      </h2>
+      <div style={headerStyle}>
+
+        <h1
+          style={{
+            margin: 0
+          }}
+        >
+          Live Notifications
+        </h1>
+
+        <div
+          style={counterStyle}
+        >
+          Total:
+          {" "}
+          {
+            notifications.length
+          }
+        </div>
+
+      </div>
 
       {
 
-        notifications.length === 0
+        loading ?
 
-        &&
+          (
 
-        <p>
-          No notifications yet
-        </p>
-      }
-
-      {
-
-        notifications.map(
-
-          (notification) => (
-
-            <div
-
-              key={notification.id}
-
-              style={{
-
-                ...notificationStyle,
-
-                backgroundColor:
-
-                  notification.type === "success"
-
-                    ? "#dcfce7"
-
-                    :
-
-                  notification.type === "info"
-
-                    ? "#dbeafe"
-
-                    :
-
-                    "#fee2e2"
-              }}
-            >
-
-              {
-                notification.text
-              }
-
+            <div style={emptyStyle}>
+              Loading notifications...
             </div>
+
           )
-        )
+
+          :
+
+          notifications.length === 0 ?
+
+          (
+
+            <div style={emptyStyle}>
+              No notifications available
+            </div>
+
+          )
+
+          :
+
+          notifications.map(
+
+            (notification) => (
+
+              <div
+
+                key={
+                  notification.id
+                }
+
+                style={
+                  cardStyle
+                }
+              >
+
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent:
+                      "space-between",
+                    alignItems:
+                      "center",
+                    marginBottom:
+                      "10px"
+                  }}
+                >
+
+                  <span
+                    style={{
+                      ...badgeStyle,
+
+                      backgroundColor:
+                        getBadgeColor(
+                          notification.event_type
+                        )
+                    }}
+                  >
+
+                    {
+                      notification.event_type
+                    }
+
+                  </span>
+
+                  <span
+                    style={{
+                      color:
+                        "#64748b",
+                      fontSize:
+                        "12px"
+                    }}
+                  >
+
+                    {
+
+                      notification.created_at
+
+                        ?
+
+                        new Date(
+                          notification.created_at
+                        ).toLocaleString()
+
+                        :
+
+                        ""
+                    }
+
+                  </span>
+
+                </div>
+
+                <div
+                  style={{
+                    fontSize:
+                      "15px",
+                    lineHeight:
+                      "1.6"
+                  }}
+                >
+
+                  {
+                    notification.message
+                  }
+
+                </div>
+
+              </div>
+            )
+          )
       }
 
     </div>
@@ -222,28 +409,98 @@ STYLES
 ====================================
 */
 
-const containerStyle = {
+const pageStyle = {
 
-  border: "1px solid #ccc",
-
-  borderRadius: "10px",
-
-  padding: "20px",
-
-  marginBottom: "20px",
-
-  backgroundColor: "#fff"
+  padding: "20px"
 };
 
-const notificationStyle = {
+const headerStyle = {
 
-  padding: "12px",
+  display: "flex",
 
-  borderRadius: "6px",
+  justifyContent:
+    "space-between",
 
-  marginBottom: "10px",
+  alignItems:
+    "center",
 
-  fontWeight: "bold"
+  marginBottom: "20px"
+};
+
+const counterStyle = {
+
+  backgroundColor:
+    "#0f172a",
+
+  color: "#fff",
+
+  padding:
+    "8px 16px",
+
+  borderRadius:
+    "20px",
+
+  fontWeight:
+    "bold"
+};
+
+const cardStyle = {
+
+  backgroundColor:
+    "#ffffff",
+
+  border:
+    "1px solid #e2e8f0",
+
+  borderRadius:
+    "12px",
+
+  padding:
+    "16px",
+
+  marginBottom:
+    "12px",
+
+  boxShadow:
+    "0 2px 6px rgba(0,0,0,0.08)"
+};
+
+const badgeStyle = {
+
+  color: "#ffffff",
+
+  padding:
+    "6px 12px",
+
+  borderRadius:
+    "20px",
+
+  fontSize:
+    "12px",
+
+  fontWeight:
+    "bold"
+};
+
+const emptyStyle = {
+
+  backgroundColor:
+    "#ffffff",
+
+  padding:
+    "40px",
+
+  borderRadius:
+    "12px",
+
+  textAlign:
+    "center",
+
+  color:
+    "#64748b",
+
+  border:
+    "1px solid #e2e8f0"
 };
 
 export default Notifications;

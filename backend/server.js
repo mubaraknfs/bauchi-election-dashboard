@@ -773,12 +773,13 @@ app.post(
 
       const {
 
-        full_name,
-        email,
-        password,
-        role
+  full_name,
+  email,
+  phone_number,
+  password,
+  role
 
-      } = req.body;
+} = req.body;
 
       const existingUser =
         await pool.query(

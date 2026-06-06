@@ -116,3 +116,91 @@ Dashboard Selector
 
 ├── GIS Map
 
+
+
+**RECOMMENDED ENTERPRISE STRUCTURE**
+
+**ROUTE-BASED ARCHITECTURE**
+
+/dashboard
+
+/admin
+
+/observer
+
+/collation
+
+/analytics
+
+/live-results
+
+/fraud-detection
+
+/approvals
+
+/users
+
+/audit-logs
+
+RECOMMENDED FOLDER STRUCTURE
+
+src/
+
+
+
+&nbsp;├── pages/
+
+&nbsp;│    ├── SuperAdminDashboard.js
+
+&nbsp;│    ├── AdminDashboard.js
+
+&nbsp;│    ├── ObserverDashboard.js
+
+&nbsp;│    ├── CollationDashboard.js
+
+&nbsp;│
+
+&nbsp;├── components/
+
+&nbsp;│    ├── analytics/
+
+&nbsp;│    ├── fraud/
+
+&nbsp;│    ├── approvals/
+
+&nbsp;│    ├── notifications/
+
+&nbsp;│    ├── charts/
+
+&nbsp;│    ├── exports/
+
+&nbsp;│
+
+&nbsp;├── routes/
+
+&nbsp;│    ├── ProtectedRoute.js
+
+&nbsp;│    ├── RoleRoute.js
+
+&nbsp;│
+
+&nbsp;├── services/
+
+&nbsp;│    ├── api.js
+
+&nbsp;│    ├── auth.js
+
+&nbsp;│
+
+&nbsp;├── layouts/
+
+&nbsp;│    ├── Sidebar.js
+
+&nbsp;│    ├── Header.js
+
+&nbsp;│
+
+&nbsp;├── context/
+
+&nbsp;│    ├── AuthContext.js
+

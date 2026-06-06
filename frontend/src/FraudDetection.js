@@ -2,7 +2,7 @@ import React from "react";
 
 function FraudDetection({
 
-  results
+  results = []
 
 }) {
 
@@ -11,9 +11,9 @@ function FraudDetection({
   DETECT SUSPICIOUS RESULTS
   ====================================
   */
-
+ 
   const suspicious =
-    results.filter((row) => {
+  results.filter((row) => {
 
       const registered =
         Number(row.registered_card || 0);

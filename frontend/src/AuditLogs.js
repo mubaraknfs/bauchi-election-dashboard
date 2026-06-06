@@ -5,10 +5,22 @@ import React, {
 
 import axios from "axios";
 
+const API_URL =
+  "https://bauchi-election-dashboard.onrender.com";
+
 function AuditLogs() {
 
   const [logs, setLogs] =
     useState([]);
+
+  const [search, setSearch] =
+    useState("");
+
+  /*
+  ====================================
+  FETCH LOGS
+  ====================================
+  */
 
   const fetchLogs =
     async () => {
@@ -23,22 +35,15 @@ function AuditLogs() {
         const response =
           await axios.get(
 
-            "https://bauchi-election-dashboard.onrender.com/api/audit-logs",
+            `${API_URL}/api/audit-logs`,
 
             {
-
               headers: {
-
                 Authorization:
                   `Bearer ${token}`
               }
             }
           );
-
-        console.log(
-          "AUDIT LOGS:",
-          response.data
-        );
 
         setLogs(
           response.data
@@ -46,105 +51,457 @@ function AuditLogs() {
 
       } catch (error) {
 
-        console.error(error);
+        console.error(
+          "AUDIT LOG ERROR:",
+          error
+        );
       }
     };
+
+  /*
+  ====================================
+  AUTO REFRESH
+  ====================================
+  */
 
   useEffect(() => {
 
     fetchLogs();
 
+    const interval =
+      setInterval(
+        fetchLogs,
+        10000
+      );
+
+    return () =>
+      clearInterval(
+        interval
+      );
+
   }, []);
+
+  /*
+  ====================================
+  FILTER
+  ====================================
+  */
+
+  const filteredLogs =
+    logs.filter(
+      (log) =>
+        JSON.stringify(log)
+          .toLowerCase()
+          .includes(
+            search.toLowerCase()
+          )
+    );
+
+  /*
+  ====================================
+  ACTION COLOR
+  ====================================
+  */
+
+  const getActionColor =
+    (action) => {
+
+      switch (action) {
+
+        case "APPROVE_RESULT":
+          return "#16a34a";
+
+        case "REJECT_RESULT":
+          return "#dc2626";
+
+        case "SUBMIT_RESULT":
+          return "#2563eb";
+
+        case "CREATE_USER":
+          return "#7c3aed";
+
+        case "LOGIN":
+          return "#0891b2";
+
+        default:
+          return "#475569";
+      }
+    };
 
   return (
 
-    <div style={cardStyle}>
+    <div style={pageStyle}>
 
-      <h2>
+      <h1
+        style={{
+          marginBottom: "20px"
+        }}
+      >
         Audit Logs
-      </h2>
+      </h1>
 
-      <table style={tableStyle}>
+      {/* SUMMARY */}
 
-        <thead>
+      <div style={summaryGrid}>
 
-          <tr>
+        <div style={summaryCard}>
+          <h4>Total Logs</h4>
+          <h2>
+            {logs.length}
+          </h2>
+        </div>
 
-            <th>ID</th>
+        <div style={summaryCard}>
+          <h4>Submissions</h4>
+          <h2>
+            {
+              logs.filter(
+                (l) =>
+                  l.action_type ===
+                  "SUBMIT_RESULT"
+              ).length
+            }
+          </h2>
+        </div>
 
-            <th>User ID</th>
+        <div style={summaryCard}>
+          <h4>Approvals</h4>
+          <h2>
+            {
+              logs.filter(
+                (l) =>
+                  l.action_type ===
+                  "APPROVE_RESULT"
+              ).length
+            }
+          </h2>
+        </div>
 
-            <th>Role</th>
+        <div style={summaryCard}>
+          <h4>Rejections</h4>
+          <h2>
+            {
+              logs.filter(
+                (l) =>
+                  l.action_type ===
+                  "REJECT_RESULT"
+              ).length
+            }
+          </h2>
+        </div>
 
-            <th>Action</th>
+      </div>
 
-            <th>Description</th>
+      {/* SEARCH */}
 
-            <th>Time</th>
+      <div
+        style={{
+          marginBottom: "15px"
+        }}
+      >
 
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          {
-
-            logs.map((log) => (
-
-              <tr key={log.id}>
-
-                <td>{log.id}</td>
-
-                <td>{log.user_id}</td>
-
-                <td>{log.user_role}</td>
-
-                <td>{log.action_type}</td>
-
-                <td>{log.action_description}</td>
-
-                <td>
-
-                  {
-
-                    new Date(
-                      log.created_at
-                    ).toLocaleString()
-                  }
-
-                </td>
-
-              </tr>
-            ))
+        <input
+          type="text"
+          placeholder="Search logs..."
+          value={search}
+          onChange={(e) =>
+            setSearch(
+              e.target.value
+            )
           }
+          style={searchStyle}
+        />
 
-        </tbody>
+      </div>
 
-      </table>
+      {/* TABLE */}
+
+      <div style={tableContainer}>
+
+        <table style={tableStyle}>
+
+          <thead>
+
+            <tr>
+
+              <th style={headerStyle}>
+                ID
+              </th>
+
+              <th style={headerStyle}>
+                User ID
+              </th>
+
+              <th style={headerStyle}>
+                Role
+              </th>
+
+              <th style={headerStyle}>
+                Action
+              </th>
+
+              <th style={headerStyle}>
+                Description
+              </th>
+
+              <th style={headerStyle}>
+                Time
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            {
+
+              filteredLogs.map(
+                (
+                  log,
+                  index
+                ) => (
+
+                  <tr
+                    key={log.id}
+                    style={{
+                      backgroundColor:
+
+                        index % 2 === 0
+
+                          ? "#ffffff"
+
+                          : "#f8fafc"
+                    }}
+                  >
+
+                    <td style={cellStyle}>
+                      {log.id}
+                    </td>
+
+                    <td style={cellStyle}>
+                      {log.user_id}
+                    </td>
+
+                    <td style={cellStyle}>
+                      {log.user_role}
+                    </td>
+
+                    <td style={cellStyle}>
+
+                      <span
+                        style={{
+                          backgroundColor:
+                            getActionColor(
+                              log.action_type
+                            ),
+
+                          color:
+                            "#fff",
+
+                          padding:
+                            "6px 12px",
+
+                          borderRadius:
+                            "20px",
+
+                          fontSize:
+                            "12px",
+
+                          fontWeight:
+                            "bold",
+
+                          whiteSpace:
+                            "nowrap"
+                        }}
+                      >
+
+                        {
+                          log.action_type
+                        }
+
+                      </span>
+
+                    </td>
+
+                    <td
+                      style={{
+                        ...cellStyle,
+                        minWidth:
+                          "450px",
+                        textAlign:
+                          "left"
+                      }}
+                    >
+                      {
+                        log.action_description
+                      }
+                    </td>
+
+                    <td style={cellStyle}>
+
+                      {
+
+                        new Date(
+                          log.created_at
+                        ).toLocaleString()
+
+                      }
+
+                    </td>
+
+                  </tr>
+                )
+              )
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
 
     </div>
   );
 }
 
-const cardStyle = {
+/*
+====================================
+PAGE
+====================================
+*/
 
-  border: "1px solid #ccc",
+const pageStyle = {
 
-  borderRadius: "10px",
+  padding: "20px"
+};
+
+/*
+====================================
+SUMMARY
+====================================
+*/
+
+const summaryGrid = {
+
+  display: "grid",
+
+  gridTemplateColumns:
+    "repeat(auto-fit,minmax(220px,1fr))",
+
+  gap: "15px",
+
+  marginBottom: "20px"
+};
+
+const summaryCard = {
+
+  backgroundColor:
+    "#ffffff",
+
+  borderRadius:
+    "10px",
 
   padding: "20px",
 
-  marginBottom: "20px",
+  textAlign:
+    "center",
 
-  backgroundColor: "#fff"
+  boxShadow:
+    "0 2px 8px rgba(0,0,0,0.08)"
+};
+
+/*
+====================================
+SEARCH
+====================================
+*/
+
+const searchStyle = {
+
+  width: "350px",
+
+  padding: "10px",
+
+  border:
+    "1px solid #d1d5db",
+
+  borderRadius:
+    "8px",
+
+  outline: "none"
+};
+
+/*
+====================================
+TABLE
+====================================
+*/
+
+const tableContainer = {
+
+  backgroundColor:
+    "#ffffff",
+
+  borderRadius:
+    "10px",
+
+  overflowX:
+    "auto",
+
+  overflowY:
+    "auto",
+
+  maxHeight:
+    "700px",
+
+  boxShadow:
+    "0 2px 8px rgba(0,0,0,0.08)"
 };
 
 const tableStyle = {
 
   width: "100%",
 
-  borderCollapse: "collapse"
+  borderCollapse:
+    "collapse"
+};
+
+const headerStyle = {
+
+  position:
+    "sticky",
+
+  top: 0,
+
+  backgroundColor:
+    "#0f172a",
+
+  color:
+    "#ffffff",
+
+  padding:
+    "12px",
+
+  border:
+    "1px solid #334155",
+
+  whiteSpace:
+    "nowrap",
+
+  zIndex: 10
+};
+
+const cellStyle = {
+
+  padding:
+    "12px",
+
+  border:
+    "1px solid #e5e7eb",
+
+  textAlign:
+    "center"
 };
 
 export default AuditLogs;
