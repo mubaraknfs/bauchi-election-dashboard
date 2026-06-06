@@ -2225,16 +2225,13 @@ UNREAD NOTIFICATION COUNT
 */
 
 app.get(
-
   "/api/notifications/unread-count",
-
   async (req, res) => {
 
     try {
 
       const result =
         await pool.query(
-
           `
           SELECT COUNT(*) AS total
           FROM notifications
@@ -2243,20 +2240,23 @@ app.get(
         );
 
       res.json({
-
-        count:
-          Number(
-            result.rows[0].total
-          )
+        count: Number(result.rows[0].total)
       });
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "UNREAD COUNT ERROR:",
+        error
+      );
 
       res.status(500).json({
 
-        success: false
+        success: false,
+
+        error: error.message,
+
+        detail: error
       });
     }
   }
