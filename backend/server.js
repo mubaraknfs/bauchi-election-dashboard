@@ -815,42 +815,46 @@ app.post(
         );
 
       const result =
-        await pool.query(
+  await pool.query(
 
-          `
+    `
 
-          INSERT INTO users (
+    INSERT INTO users (
 
-            full_name,
-            email,
-            password,
-            role
+      full_name,
+      email,
+      phone_number,
+      password,
+      role
 
-          )
+    )
 
-          VALUES (
+    VALUES (
 
-            $1,$2,$3,$4
+      $1,$2,$3,$4,$5
 
-          )
+    )
 
-          RETURNING
+    RETURNING
 
-            id,
-            full_name,
-            email,
-            role
+      id,
+      full_name,
+      email,
+      phone_number,
+      role
 
-          `,
+    `,
 
-          [
+    [
 
-            full_name,
-            email,
-            hashedPassword,
-            role
-          ]
-        );
+      full_name,
+      email,
+      phone_number,
+      hashedPassword,
+      role
+    ]
+  );
+  
 await createAuditLog(
 
   req.user.id,
