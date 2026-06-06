@@ -854,7 +854,7 @@ app.post(
       role
     ]
   );
-  
+
 await createAuditLog(
 
   req.user.id,
@@ -936,17 +936,18 @@ app.get(
       const result =
         await pool.query(`
 
-          SELECT
+         SELECT
 
-            id,
-            full_name,
-            email,
-            role,
-            created_at
+  id,
+  full_name,
+  email,
+  phone_number,
+  role,
+  created_at
 
-          FROM users
+FROM users
 
-          ORDER BY id DESC
+ORDER BY id DESC
 
         `);
 
