@@ -162,6 +162,47 @@ async function createAuditLog(
     );
   }
 }
+
+/*
+====================================
+NOTIFICATION LOGGER
+====================================
+*/
+
+async function createNotification(
+  eventType,
+  message
+) {
+
+  try {
+
+    await pool.query(
+
+      `
+      INSERT INTO notifications
+      (
+        event_type,
+        message
+      )
+      VALUES
+      ($1,$2)
+      `,
+
+      [
+        eventType,
+        message
+      ]
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Notification Error:",
+      error
+    );
+  }
+}
+
 /*
 ====================================
 HELPER FUNCTION
@@ -1119,6 +1160,14 @@ await createAuditLog(
 
   `${req.user.role} approved result ID ${id}`
 );
+
+await createNotification(
+
+  "Approval",
+
+  `Result ID ${id} approved`
+);
+
       res.json({
 
         success: true,
@@ -1226,6 +1275,13 @@ app.put(
 
         `${req.user.role} rejected result ID ${id}`
       );
+
+      await createNotification(
+
+  "Rejection",
+
+  `Result ID ${id} rejected`
+);
 
       /*
       ====================================
@@ -1671,6 +1727,14 @@ await createAuditLog(
 
   `${req.user.role} submitted PU result`
 );
+
+await createNotification(
+
+  "Submission",
+
+  `New result submitted for ${data.polling_unit}`
+);
+
       res.json({
 
         success: true,
@@ -2109,6 +2173,135 @@ console.error(
     }
   }
 );
+
+/*
+====================================
+GET NOTIFICATIONS
+====================================
+*/
+
+app.get(
+
+  "/api/notifications",
+
+  async (req, res) => {
+
+    try {
+
+      const result =
+        await pool.query(
+
+          `
+          SELECT *
+          FROM notifications
+          ORDER BY created_at DESC
+          LIMIT 100
+          `
+        );
+
+      res.json(
+        result.rows
+      );
+
+    } catch (error) {
+
+  console.error(
+    "NOTIFICATION ERROR:",
+    error.message
+  );
+
+  res.status(500).json({
+    success: false,
+    message: error.message
+  });
+}
+  }
+);
+
+/*
+====================================
+UNREAD NOTIFICATION COUNT
+====================================
+*/
+
+app.get(
+
+  "/api/notifications/unread-count",
+
+  async (req, res) => {
+
+    try {
+
+      const result =
+        await pool.query(
+
+          `
+          SELECT COUNT(*) AS total
+          FROM notifications
+          WHERE is_read = FALSE
+          `
+        );
+
+      res.json({
+
+        count:
+          Number(
+            result.rows[0].total
+          )
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+
+        success: false
+      });
+    }
+  }
+);
+
+/*
+====================================
+MARK ALL NOTIFICATIONS READ
+====================================
+*/
+
+app.put(
+
+  "/api/notifications/read-all",
+
+  async (req, res) => {
+
+    try {
+
+      await pool.query(
+
+        `
+        UPDATE notifications
+        SET is_read = TRUE
+        WHERE is_read = FALSE
+        `
+      );
+
+      res.json({
+
+        success: true
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+
+        success: false
+      });
+    }
+  }
+);
+
 /*
 ====================================
 GET AUDIT LOGS
@@ -2158,6 +2351,7 @@ app.get(
     }
   }
 );
+
 /*
 ====================================
 START SERVER
