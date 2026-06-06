@@ -186,6 +186,45 @@ function UserManagement() {
     };
 
   /*
+====================================
+TOGGLE USER STATUS
+====================================
+*/
+
+const toggleUserStatus =
+  async (id) => {
+
+    try {
+
+      await axios.put(
+
+        `${API_URL}/api/users/${id}/status`,
+
+        {},
+
+        {
+
+          headers: {
+
+            Authorization:
+              `Bearer ${token}`
+          }
+        }
+      );
+
+      fetchUsers();
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert(
+        "Failed to update status"
+      );
+    }
+  };
+
+  /*
   ====================================
   DELETE USER
   ====================================
@@ -443,9 +482,11 @@ function UserManagement() {
 
             <th style={thStyle}>Phone</th>
 
-            <th style={thStyle}>Role</th>
+           <th style={thStyle}>Role</th>
 
-            <th style={thStyle}>Action</th>
+           <th style={thStyle}>Status</th>
+
+           <th style={thStyle}>Action</th>
 
           </tr>
 
@@ -475,21 +516,83 @@ function UserManagement() {
                 </td>
 
                 <td style={tdStyle}>
-                  {user.role}
-                </td>
+                {user.role}
+               </td>
 
-                <td style={tdStyle}>
+              <td style={tdStyle}>
 
-                  <button
-                    style={deleteButton}
-                    onClick={() =>
-                      deleteUser(
-                        user.id
-                      )
-                    }
-                  >
-                    Delete
-                  </button>
+               {user.is_active ? (
+
+    <span
+      style={{
+        color: "green",
+        fontWeight: "bold"
+      }}
+    >
+      Active
+    </span>
+
+  ) : (
+
+    <span
+      style={{
+        color: "red",
+        fontWeight: "bold"
+      }}
+    >
+      Disabled
+    </span>
+
+  )}
+
+</td>
+
+<td style={tdStyle}>
+<div
+  style={{
+    display: "flex",
+    gap: "5px"
+  }}
+>
+
+  <button
+
+    style={
+
+      user.is_active
+
+        ? disableButton
+
+        : enableButton
+    }
+
+    onClick={() =>
+      toggleUserStatus(
+        user.id
+      )
+    }
+  >
+
+    {user.is_active
+
+      ? "Disable"
+
+      : "Enable"}
+
+  </button>
+
+  <button
+
+    style={deleteButton}
+
+    onClick={() =>
+      deleteUser(user.id)
+    }
+  >
+    Delete
+  </button>
+
+</div>
 
                 </td>
 
@@ -574,6 +677,36 @@ const createButton = {
 const deleteButton = {
 
   background: "#dc2626",
+
+  color: "#fff",
+
+  border: "none",
+
+  padding: "6px 12px",
+
+  borderRadius: "5px",
+
+  cursor: "pointer"
+};
+
+ const enableButton = {
+
+  background: "#16a34a",
+
+  color: "#fff",
+
+  border: "none",
+
+  padding: "6px 12px",
+
+  borderRadius: "5px",
+
+  cursor: "pointer"
+};
+
+const disableButton = {
+
+  background: "#f59e0b",
 
   color: "#fff",
 
