@@ -2714,7 +2714,9 @@ app.get(
       const result =
         await pool.query(`
 
-         COALESCE(SUM(accord),0) AS accord,
+         SELECT
+
+COALESCE(SUM(accord),0) AS accord,
 COALESCE(SUM(aa),0) AS aa,
 COALESCE(SUM(aac),0) AS aac,
 COALESCE(SUM(adc),0) AS adc,
@@ -2736,6 +2738,10 @@ COALESCE(SUM(yp),0) AS yp,
 COALESCE(SUM(ypp),0) AS ypp,
 COALESCE(SUM(zlp),0) AS zlp
 
+FROM results
+
+WHERE status = 'approved'
+
         `);
 
       res.json(
@@ -2748,12 +2754,12 @@ COALESCE(SUM(zlp),0) AS zlp
 
       res.status(500).json({
 
-        success: false,
+  success: false,
 
-        message:
-          "Failed to load party results"
+  error:
+    error.message
 
-      });
+});
 
     }
 
