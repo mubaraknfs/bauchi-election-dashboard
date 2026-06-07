@@ -1,3 +1,5 @@
+import SituationRoomDashboard
+from "./pages/SituationRoomDashboard";
 import CancelledResults
 from "./CancelledResults";
 import NotificationsDashboard
@@ -949,6 +951,11 @@ return (
       results={results}
     />
   }
+/>
+
+<Route
+  path="/"
+  element={<SituationRoomDashboard />}
 />
 
 <Route

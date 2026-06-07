@@ -46,11 +46,6 @@ const menuItems = [
   },
 
   {
-    name: "Analytics",
-    path: "/analytics"
-  },
-
-  {
     name: "Election Map",
     path: "/map"
   }

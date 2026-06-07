@@ -2821,6 +2821,88 @@ app.get(
   }
 );
 
+
+/*
+====================================
+LGA LIVE TICKER
+====================================
+*/
+
+app.get(
+
+  "/api/lga-ticker",
+
+  async (req, res) => {
+
+    try {
+
+      const result =
+        await pool.query(`
+SELECT
+
+  lg.lga_name,
+
+  COALESCE(SUM(accord),0) AS accord,
+  COALESCE(SUM(aa),0) AS aa,
+  COALESCE(SUM(aac),0) AS aac,
+  COALESCE(SUM(adc),0) AS adc,
+  COALESCE(SUM(adp),0) AS adp,
+  COALESCE(SUM(apc),0) AS apc,
+  COALESCE(SUM(apga),0) AS apga,
+  COALESCE(SUM(apm),0) AS apm,
+  COALESCE(SUM(app),0) AS app,
+  COALESCE(SUM(bp),0) AS bp,
+  COALESCE(SUM(lp),0) AS lp,
+  COALESCE(SUM(ndc),0) AS ndc,
+  COALESCE(SUM(nnpp),0) AS nnpp,
+  COALESCE(SUM(nrm),0) AS nrm,
+  COALESCE(SUM(pdp),0) AS pdp,
+  COALESCE(SUM(prp),0) AS prp,
+  COALESCE(SUM(sdp),0) AS sdp,
+  COALESCE(SUM(yp),0) AS yp,
+  COALESCE(SUM(ypp),0) AS ypp,
+  COALESCE(SUM(zlp),0) AS zlp,
+
+  COUNT(*) AS polling_units_reported
+
+FROM results r
+
+JOIN wards w
+  ON r.ward = w.ward_name
+
+JOIN local_governments lg
+  ON w.lga_id = lg.lga_id
+
+WHERE r.status = 'approved'
+
+GROUP BY lg.lga_name
+
+ORDER BY lg.lga_name;
+
+        `);
+
+      res.json(
+        result.rows
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to load LGA ticker"
+
+      });
+
+    }
+
+  }
+);
+
 /*
 ====================================
 START SERVER
