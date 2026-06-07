@@ -1466,11 +1466,15 @@ app.get(
       const result =
         await pool.query(`
 
-          SELECT *
+          SELECT
+          id,
+          ward,
+          polling_unit,
+          party_agent,
+          phone_number,
+          status
           FROM results
-
           WHERE status = 'pending'
-
           ORDER BY id DESC
 
         `);
@@ -2265,6 +2269,92 @@ app.get(
   }
 );
 
+
+app.get(
+
+  "/api/lga-live-results",
+
+  async (req, res) => {
+
+    try {
+
+      const result =
+        await pool.query(`
+
+          SELECT
+
+  lg.lga_name,
+
+  COALESCE(SUM(accord),0) AS accord,
+  COALESCE(SUM(aa),0) AS aa,
+  COALESCE(SUM(aac),0) AS aac,
+  COALESCE(SUM(adc),0) AS adc,
+  COALESCE(SUM(adp),0) AS adp,
+  COALESCE(SUM(apc),0) AS apc,
+  COALESCE(SUM(apga),0) AS apga,
+  COALESCE(SUM(apm),0) AS apm,
+  COALESCE(SUM(app),0) AS app,
+  COALESCE(SUM(bp),0) AS bp,
+  COALESCE(SUM(dla),0) AS dla,
+  COALESCE(SUM(lp),0) AS lp,
+  COALESCE(SUM(ndc),0) AS ndc,
+  COALESCE(SUM(nnpp),0) AS nnpp,
+  COALESCE(SUM(nrm),0) AS nrm,
+  COALESCE(SUM(pdp),0) AS pdp,
+  COALESCE(SUM(prp),0) AS prp,
+  COALESCE(SUM(sdp),0) AS sdp,
+  COALESCE(SUM(yp),0) AS yp,
+  COALESCE(SUM(ypp),0) AS ypp,
+  COALESCE(SUM(zlp),0) AS zlp,
+
+  COALESCE(SUM(valid_vote),0)
+    AS total_valid_votes,
+
+  COALESCE(SUM(total_vote_cast),0)
+    AS total_votes_cast,
+
+  COALESCE(SUM(registered_card),0)
+    AS total_registered_voters,
+
+  COALESCE(SUM(accredited_card),0)
+    AS total_accredited_voters,
+
+  COUNT(r.id)
+    AS polling_units_reported
+
+FROM results r
+
+JOIN wards w
+ON r.ward = w.ward_name
+
+JOIN local_governments lg
+ON w.lga_id = lg.lga_id
+
+WHERE r.status = 'approved'
+
+GROUP BY lg.lga_name
+
+ORDER BY lg.lga_name ASC
+
+        `);
+
+      res.json(result.rows);
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+
+        success:false
+
+      });
+
+    }
+
+  }
+);
+
 /*
 ====================================
 STATE SUMMARY
@@ -2283,23 +2373,27 @@ app.get(
 
         SELECT
 
-          SUM(aac) AS aac,
-          SUM(adc) AS adc,
-          SUM(adp) AS adp,
-          SUM(apc) AS apc,
-          SUM(apga) AS apga,
-          SUM(apm) AS apm,
-          SUM(app) AS app,
-          SUM(bp) AS bp,
-          SUM(lp) AS lp,
-          SUM(ndc) AS ndc,
-          SUM(nnpp) AS nnpp,
-          SUM(nrm) AS nrm,
-          SUM(pdp) AS pdp,
-          SUM(prp) AS prp,
-          SUM(sdp) AS sdp,
-          SUM(ypp) AS ypp,
-          SUM(zlp) AS zlp,
+          SUM(accord) AS accord,
+SUM(aa) AS aa,
+SUM(aac) AS aac,
+SUM(adc) AS adc,
+SUM(adp) AS adp,
+SUM(apc) AS apc,
+SUM(apga) AS apga,
+SUM(apm) AS apm,
+SUM(app) AS app,
+SUM(bp) AS bp,
+SUM(dla) AS dla,
+SUM(lp) AS lp,
+SUM(ndc) AS ndc,
+SUM(nnpp) AS nnpp,
+SUM(nrm) AS nrm,
+SUM(pdp) AS pdp,
+SUM(prp) AS prp,
+SUM(sdp) AS sdp,
+SUM(yp) AS yp,
+SUM(ypp) AS ypp,
+SUM(zlp) AS zlp
 
           SUM(valid_vote)
           AS total_valid_votes,
@@ -2535,6 +2629,189 @@ app.get(
           "Failed to fetch audit logs"
       });
     }
+  }
+);
+
+/*
+====================================
+DASHBOARD SUMMARY
+====================================
+*/
+
+app.get(
+
+  "/api/dashboard-summary",
+
+  async (req, res) => {
+
+    try {
+
+      const summary = await pool.query(`
+
+        SELECT
+
+COALESCE(SUM(registered_card),0)
+AS registered,
+
+COALESCE(SUM(accredited_card),0)
+AS accredited,
+
+COALESCE(SUM(valid_vote),0)
+AS valid_votes,
+
+COUNT(*) FILTER (
+  WHERE status='approved'
+) AS approved_results,
+
+COUNT(*) FILTER (
+  WHERE status='pending'
+) AS pending_results,
+
+COUNT(*) FILTER (
+  WHERE cancelled=true
+) AS cancelled_results
+
+FROM results
+
+      `);
+
+      res.json(
+        summary.rows[0]
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to load dashboard summary"
+
+      });
+
+    }
+
+  }
+);
+
+/*
+====================================
+PARTY RESULTS
+====================================
+*/
+
+app.get(
+
+  "/api/party-results",
+
+  async (req, res) => {
+
+    try {
+
+      const result =
+        await pool.query(`
+
+         COALESCE(SUM(accord),0) AS accord,
+COALESCE(SUM(aa),0) AS aa,
+COALESCE(SUM(aac),0) AS aac,
+COALESCE(SUM(adc),0) AS adc,
+COALESCE(SUM(adp),0) AS adp,
+COALESCE(SUM(apc),0) AS apc,
+COALESCE(SUM(apga),0) AS apga,
+COALESCE(SUM(apm),0) AS apm,
+COALESCE(SUM(app),0) AS app,
+COALESCE(SUM(bp),0) AS bp,
+COALESCE(SUM(dla),0) AS dla,
+COALESCE(SUM(lp),0) AS lp,
+COALESCE(SUM(ndc),0) AS ndc,
+COALESCE(SUM(nnpp),0) AS nnpp,
+COALESCE(SUM(nrm),0) AS nrm,
+COALESCE(SUM(pdp),0) AS pdp,
+COALESCE(SUM(prp),0) AS prp,
+COALESCE(SUM(sdp),0) AS sdp,
+COALESCE(SUM(yp),0) AS yp,
+COALESCE(SUM(ypp),0) AS ypp,
+COALESCE(SUM(zlp),0) AS zlp
+
+        `);
+
+      res.json(
+        result.rows[0]
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to load party results"
+
+      });
+
+    }
+
+  }
+);
+
+/*
+====================================
+LIVE TICKER
+====================================
+*/
+
+app.get(
+
+  "/api/live-ticker",
+
+  async (req, res) => {
+
+    try {
+
+      const result =
+        await pool.query(`
+
+          SELECT
+
+          polling_unit,
+          ward,
+          created_at
+
+          FROM results
+
+          WHERE status = 'approved'
+
+          ORDER BY created_at DESC
+
+          LIMIT 20
+
+        `);
+
+      res.json(
+        result.rows
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to load ticker"
+
+      });
+
+    }
+
   }
 );
 

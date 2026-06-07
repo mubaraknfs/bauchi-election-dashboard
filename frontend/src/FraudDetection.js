@@ -1,4 +1,7 @@
-import React from "react";
+import React, {
+  useMemo,
+  useState
+} from "react";
 
 function FraudDetection({
 
@@ -6,136 +9,380 @@ function FraudDetection({
 
 }) {
 
+  const [search, setSearch] =
+    useState("");
+
   /*
   ====================================
-  DETECT SUSPICIOUS RESULTS
+  FRAUD ANALYSIS
   ====================================
   */
- 
+
   const suspicious =
-  results.filter((row) => {
+    useMemo(() => {
 
-      const registered =
-        Number(row.registered_card || 0);
+      return results
 
-      const accredited =
-        Number(row.accredited_card || 0);
+        .map((row) => {
 
-      const turnout =
+          const registered =
+            Number(
+              row.registered_card || 0
+            );
 
-        registered > 0
+          const accredited =
+            Number(
+              row.accredited_card || 0
+            );
 
-          ?
+          const turnout =
 
-          (accredited / registered) * 100
+            registered > 0
 
-          :
+              ?
 
-          0;
+              (
+                accredited /
+                registered
+              ) * 100
 
-      return turnout > 95;
-    });
+              :
+
+              0;
+
+          if (
+            turnout > 95
+          ) {
+
+            return {
+
+              ...row,
+
+              turnout:
+                turnout.toFixed(1),
+
+              fraudType:
+                "Excessive Turnout",
+
+              risk:
+                turnout >= 100
+                  ? "HIGH"
+                  : "MEDIUM"
+            };
+          }
+
+          return null;
+
+        })
+
+        .filter(Boolean);
+
+    }, [results]);
+
+  /*
+  ====================================
+  FILTER
+  ====================================
+  */
+
+  const filtered =
+    suspicious.filter(
+
+      (item) =>
+
+        item.polling_unit
+          ?.toLowerCase()
+          .includes(
+            search.toLowerCase()
+          )
+
+        ||
+
+        item.ward
+          ?.toLowerCase()
+          .includes(
+            search.toLowerCase()
+          )
+    );
+
+  const avgTurnout =
+
+    suspicious.length > 0
+
+      ?
+
+      (
+
+        suspicious.reduce(
+
+          (
+            total,
+            item
+          ) =>
+
+            total +
+            Number(
+              item.turnout
+            ),
+
+          0
+        )
+
+        /
+
+        suspicious.length
+
+      ).toFixed(1)
+
+      :
+
+      0;
 
   return (
 
-    <div style={containerStyle}>
+    <div style={pageStyle}>
 
-      <div style={headerStyle}>
+      <h1 style={titleStyle}>
+        Fraud Detection Center
+      </h1>
 
-        <h2 style={titleStyle}>
-          Suspicious Polling Units
-        </h2>
+      {/* SUMMARY */}
 
-        <span style={badgeStyle}>
+      <div style={summaryGrid}>
 
-          {suspicious.length}
+        <div style={summaryCard}>
+          <h4>
+            Results Analysed
+          </h4>
+          <h1>
+            {results.length}
+          </h1>
+        </div>
 
-          {" "}
+        <div style={summaryCard}>
+          <h4>
+            Fraud Alerts
+          </h4>
+          <h1>
+            {suspicious.length}
+          </h1>
+        </div>
 
-          Alert(s)
+        <div style={summaryCard}>
+          <h4>
+            High Risk Cases
+          </h4>
+          <h1>
+            {
 
-        </span>
+              suspicious.filter(
+                (x) =>
+                  x.risk ===
+                  "HIGH"
+              ).length
+
+            }
+          </h1>
+        </div>
+
+        <div style={summaryCard}>
+          <h4>
+            Average Turnout
+          </h4>
+          <h1>
+            {avgTurnout}%
+          </h1>
+        </div>
 
       </div>
 
+      {/* SEARCH */}
+
+      <input
+
+        type="text"
+
+        placeholder="Search polling unit or ward..."
+
+        value={search}
+
+        onChange={(e) =>
+          setSearch(
+            e.target.value
+          )
+        }
+
+        style={searchStyle}
+      />
+
       {
 
-        suspicious.length === 0
+        filtered.length === 0
 
           ?
 
-          <div style={safeStyle}>
+          (
 
-            ✅ No suspicious activity detected
+            <div style={safeStyle}>
 
-          </div>
+              ✅ No suspicious activity detected
+
+            </div>
+
+          )
 
           :
 
-          suspicious.map((item) => {
+          (
 
-            const registered =
-              Number(item.registered_card || 0);
+            <div style={tableContainer}>
 
-            const accredited =
-              Number(item.accredited_card || 0);
-
-            const turnout =
-
-              registered > 0
-
-                ?
-
-                (
-                  (accredited / registered) * 100
-                ).toFixed(1)
-
-                :
-
-                0;
-
-            return (
-
-              <div
-
-                key={item.id}
-
-                style={alertStyle}
+              <table
+                style={tableStyle}
               >
 
-                <div style={alertTopStyle}>
+                <thead>
 
-                  <span style={warningIconStyle}>
-                    ⚠
-                  </span>
+                  <tr>
 
-                  <strong style={puStyle}>
+                    <th style={thStyle}>
+                      Ward
+                    </th>
 
-                    {item.polling_unit}
+                    <th style={thStyle}>
+                      Polling Unit
+                    </th>
 
-                  </strong>
+                    <th style={thStyle}>
+                      Turnout
+                    </th>
 
-                </div>
+                    <th style={thStyle}>
+                      Risk
+                    </th>
 
-                <div style={detailsStyle}>
+                    <th style={thStyle}>
+                      Fraud Type
+                    </th>
 
-                  High turnout detected
+                  </tr>
 
-                  {" • "}
+                </thead>
 
-                  Turnout:
+                <tbody>
 
-                  {" "}
+                  {
 
-                  <strong>
-                    {turnout}%
-                  </strong>
+                    filtered.map(
+                      (
+                        item,
+                        index
+                      ) => (
 
-                </div>
+                        <tr
+                          key={
+                            item.id
+                          }
+                          style={{
+                            backgroundColor:
 
-              </div>
-            );
-          })
+                              index % 2 === 0
+
+                                ?
+
+                                "#ffffff"
+
+                                :
+
+                                "#f8fafc"
+                          }}
+                        >
+
+                          <td style={tdStyle}>
+                            {
+                              item.ward
+                            }
+                          </td>
+
+                          <td style={tdStyle}>
+                            {
+                              item.polling_unit
+                            }
+                          </td>
+
+                          <td style={tdStyle}>
+
+                            <strong>
+
+                              {
+                                item.turnout
+                              }%
+
+                            </strong>
+
+                          </td>
+
+                          <td style={tdStyle}>
+
+                            <span
+
+                              style={{
+
+                                padding:
+                                  "5px 12px",
+
+                                borderRadius:
+                                  "20px",
+
+                                color:
+                                  "#fff",
+
+                                fontWeight:
+                                  "bold",
+
+                                backgroundColor:
+
+                                  item.risk ===
+                                  "HIGH"
+
+                                    ?
+
+                                    "#dc2626"
+
+                                    :
+
+                                    "#f59e0b"
+                              }}
+                            >
+
+                              {
+                                item.risk
+                              }
+
+                            </span>
+
+                          </td>
+
+                          <td style={tdStyle}>
+                            {
+                              item.fraudType
+                            }
+                          </td>
+
+                        </tr>
+                      )
+                    )
+
+                  }
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+          )
+
       }
 
     </div>
@@ -144,135 +391,84 @@ function FraudDetection({
 
 /*
 ====================================
-MAIN CONTAINER
+STYLES
 ====================================
 */
 
-const containerStyle = {
+const pageStyle = {
+  padding: "20px"
+};
 
-  backgroundColor: "#ffffff",
+const titleStyle = {
+  marginBottom: "20px",
+  fontSize: "34px",
+  fontWeight: "700"
+};
 
-  padding: "25px",
+const summaryGrid = {
+  display: "grid",
+  gridTemplateColumns:
+    "repeat(auto-fit,minmax(220px,1fr))",
+  gap: "15px",
+  marginBottom: "20px"
+};
 
-  marginTop: "30px",
-
+const summaryCard = {
+  backgroundColor: "#fff",
   borderRadius: "12px",
-
-  border: "1px solid #dcdcdc",
-
+  padding: "20px",
+  textAlign: "center",
   boxShadow:
     "0 2px 8px rgba(0,0,0,0.08)"
 };
 
-/*
-====================================
-HEADER
-====================================
-*/
-
-const headerStyle = {
-
-  display: "flex",
-
-  justifyContent: "space-between",
-
-  alignItems: "center",
-
+const searchStyle = {
+  width: "350px",
+  padding: "10px",
+  border:
+    "1px solid #d1d5db",
+  borderRadius: "8px",
   marginBottom: "20px"
 };
 
-const titleStyle = {
-
-  margin: 0,
-
-  fontSize: "24px",
-
-  fontWeight: "700"
+const tableContainer = {
+  backgroundColor: "#fff",
+  borderRadius: "12px",
+  overflow: "hidden",
+  boxShadow:
+    "0 2px 8px rgba(0,0,0,0.08)"
 };
 
-const badgeStyle = {
-
-  backgroundColor: "#ff4d4f",
-
-  color: "#ffffff",
-
-  padding: "6px 12px",
-
-  borderRadius: "20px",
-
-  fontWeight: "bold",
-
-  fontSize: "14px"
+const tableStyle = {
+  width: "100%",
+  borderCollapse:
+    "collapse"
 };
 
-/*
-====================================
-SAFE STATE
-====================================
-*/
+const thStyle = {
+  backgroundColor:
+    "#0f172a",
+  color: "#fff",
+  padding: "14px",
+  textAlign: "center"
+};
+
+const tdStyle = {
+  padding: "14px",
+  border:
+    "1px solid #e5e7eb",
+  textAlign: "center"
+};
 
 const safeStyle = {
-
-  backgroundColor: "#f6ffed",
-
-  border: "1px solid #b7eb8f",
-
+  backgroundColor:
+    "#f6ffed",
+  border:
+    "1px solid #b7eb8f",
   color: "#389e0d",
-
   padding: "15px",
-
   borderRadius: "8px",
-
-  fontWeight: "500"
-};
-
-/*
-====================================
-ALERT CARD
-====================================
-*/
-
-const alertStyle = {
-
-  backgroundColor: "#fff1f0",
-
-  border: "1px solid #ffa39e",
-
-  borderLeft: "6px solid #ff4d4f",
-
-  padding: "15px",
-
-  marginBottom: "15px",
-
-  borderRadius: "8px"
-};
-
-const alertTopStyle = {
-
-  display: "flex",
-
-  alignItems: "center",
-
-  gap: "10px",
-
-  marginBottom: "8px"
-};
-
-const warningIconStyle = {
-
-  fontSize: "22px"
-};
-
-const puStyle = {
-
-  fontSize: "18px"
-};
-
-const detailsStyle = {
-
-  color: "#595959",
-
-  fontSize: "15px"
+  fontWeight: "600"
 };
 
 export default FraudDetection;

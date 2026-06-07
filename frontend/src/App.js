@@ -943,6 +943,15 @@ return (
 />
 
 <Route
+  path="/fraud"
+  element={
+    <FraudDetection
+      results={results}
+    />
+  }
+/>
+
+<Route
   path="/submit-result"
   element={
     <RoleRoute

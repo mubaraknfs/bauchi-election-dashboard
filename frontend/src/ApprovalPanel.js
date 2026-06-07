@@ -17,6 +17,9 @@ const socket = io(
   "https://bauchi-election-dashboard.onrender.com"
 );
 
+const API_URL =
+  "https://bauchi-election-dashboard.onrender.com";
+
 function ApprovalPanel() {
 
   /*
@@ -30,15 +33,26 @@ function ApprovalPanel() {
     setPendingResults
   ] = useState([]);
 
+  const [
+    loading,
+    setLoading
+  ] = useState(true);
+
+  const [
+    search,
+    setSearch
+  ] = useState("");
+
   /*
   |--------------------------------------------------------------------------
   | TOKEN
   |--------------------------------------------------------------------------
   */
 
-  const token = localStorage.getItem(
-    "token"
-  );
+  const token =
+    localStorage.getItem(
+      "token"
+    );
 
   /*
   |--------------------------------------------------------------------------
@@ -46,14 +60,18 @@ function ApprovalPanel() {
   |--------------------------------------------------------------------------
   */
 
-  const fetchPendingResults = useCallback(
-    async () => {
+  const fetchPendingResults =
+    useCallback(async () => {
 
       try {
 
+        setLoading(true);
+
         const response =
           await axios.get(
-            "https://bauchi-election-dashboard.onrender.com/api/pending-results",
+
+            `${API_URL}/api/pending-results`,
+
             {
               headers: {
                 authorization:
@@ -61,11 +79,6 @@ function ApprovalPanel() {
               }
             }
           );
-
-        console.log(
-          "Pending Results:",
-          response.data
-        );
 
         setPendingResults(
           response.data
@@ -78,10 +91,13 @@ function ApprovalPanel() {
           error.response?.data ||
           error.message
         );
+
+      } finally {
+
+        setLoading(false);
       }
-    },
-    [token]
-  );
+
+    }, [token]);
 
   /*
   |--------------------------------------------------------------------------
@@ -124,39 +140,48 @@ function ApprovalPanel() {
   |--------------------------------------------------------------------------
   */
 
-  const approveResult = async (id) => {
+  const approveResult =
+    async (id) => {
 
-    try {
+      const confirmed =
+        window.confirm(
+          "Approve this result?"
+        );
 
-      await axios.put(
+      if (!confirmed)
+        return;
 
-        `https://bauchi-election-dashboard.onrender.com/api/approve-result/${id}`,
+      try {
 
-        {},
+        await axios.put(
 
-        {
-          headers: {
-            authorization:
-              `Bearer ${token}`
+          `${API_URL}/api/approve-result/${id}`,
+
+          {},
+
+          {
+            headers: {
+              authorization:
+                `Bearer ${token}`
+            }
           }
-        }
-      );
+        );
 
-      alert(
-        "Result approved"
-      );
+        alert(
+          "Result approved successfully"
+        );
 
-      fetchPendingResults();
+        fetchPendingResults();
 
-    } catch (error) {
+      } catch (error) {
 
-      console.error(error);
+        console.error(error);
 
-      alert(
-        "Approval failed"
-      );
-    }
-  };
+        alert(
+          "Approval failed"
+        );
+      }
+    };
 
   /*
   |--------------------------------------------------------------------------
@@ -164,159 +189,329 @@ function ApprovalPanel() {
   |--------------------------------------------------------------------------
   */
 
-  const rejectResult = async (id) => {
+  const rejectResult =
+    async (id) => {
 
-    try {
+      const confirmed =
+        window.confirm(
+          "Reject this result?"
+        );
 
-      await axios.put(
+      if (!confirmed)
+        return;
 
-        `https://bauchi-election-dashboard.onrender.com/api/reject-result/${id}`,
+      try {
 
-        {},
+        await axios.put(
 
-        {
-          headers: {
-            authorization:
-              `Bearer ${token}`
+          `${API_URL}/api/reject-result/${id}`,
+
+          {},
+
+          {
+            headers: {
+              authorization:
+                `Bearer ${token}`
+            }
           }
-        }
-      );
+        );
 
-      alert(
-        "Result rejected"
-      );
+        alert(
+          "Result rejected successfully"
+        );
 
-      fetchPendingResults();
+        fetchPendingResults();
 
-    } catch (error) {
+      } catch (error) {
 
-      console.error(error);
+        console.error(error);
 
-      alert(
-        "Rejection failed"
-      );
-    }
-  };
+        alert(
+          "Rejection failed"
+        );
+      }
+    };
+
+  /*
+  |--------------------------------------------------------------------------
+  | FILTER RESULTS
+  |--------------------------------------------------------------------------
+  */
+
+  const filteredResults =
+    pendingResults.filter(
+      (result) =>
+
+        result.ward
+          ?.toLowerCase()
+          .includes(
+            search.toLowerCase()
+          )
+
+        ||
+
+        result.polling_unit
+          ?.toLowerCase()
+          .includes(
+            search.toLowerCase()
+          )
+
+        ||
+
+        result.party_agent
+          ?.toLowerCase()
+          .includes(
+            search.toLowerCase()
+          )
+
+        ||
+
+        result.phone_number
+          ?.toLowerCase()
+          .includes(
+            search.toLowerCase()
+          )
+    );
+
+  /*
+  |--------------------------------------------------------------------------
+  | LOADING
+  |--------------------------------------------------------------------------
+  */
+
+  if (loading) {
+
+    return (
+
+      <div style={pageStyle}>
+
+        <h2>
+          Loading pending results...
+        </h2>
+
+      </div>
+    );
+  }
 
   return (
 
-    <div style={containerStyle}>
+    <div style={pageStyle}>
 
-      <h2>
+      <h1 style={titleStyle}>
         Pending Result Approvals
-      </h2>
+      </h1>
 
-      {
-        pendingResults.length === 0 && (
+      {/* SUMMARY */}
 
-          <p>
-            No pending results found.
-          </p>
-        )
-      }
+      <div style={summaryGrid}>
 
-      <table style={tableStyle}>
+        <div style={summaryCard}>
 
-        <thead>
+          <h4>
+            Pending Results
+          </h4>
 
-          <tr>
+          <h1>
+            {pendingResults.length}
+          </h1>
 
-            <th style={thStyle}>
-              ID
-            </th>
+        </div>
 
-            <th style={thStyle}>
-              Ward
-            </th>
+      </div>
 
-            <th style={thStyle}>
-              Polling Unit
-            </th>
+      {/* SEARCH */}
 
-            <th style={thStyle}>
-              Party Agent
-            </th>
+      <input
+        type="text"
+        placeholder="Search ward, polling unit, party agent..."
+        value={search}
+        onChange={(e) =>
+          setSearch(
+            e.target.value
+          )
+        }
+        style={searchStyle}
+      />
 
-            <th style={thStyle}>
-              Action
-            </th>
+      {/* TABLE */}
 
-          </tr>
+      <div style={tableContainer}>
 
-        </thead>
+        <table style={tableStyle}>
 
-        <tbody>
+          <thead>
 
-          {
-            pendingResults.map(
-              (result) => (
+            <tr>
 
-                <tr
-                  key={result.id}
-                >
+              <th style={thStyle}>
+                ID
+              </th>
 
-                  <td style={tdStyle}>
-                    {result.id}
-                  </td>
+              <th style={thStyle}>
+                Ward
+              </th>
 
-                  <td style={tdStyle}>
-                    {result.ward}
-                  </td>
+              <th style={thStyle}>
+                Polling Unit
+              </th>
 
-                  <td style={tdStyle}>
-                    {result.polling_unit}
-                  </td>
+              <th style={thStyle}>
+                Party Agent
+              </th>
 
-                  <td style={tdStyle}>
-                    {result.party_agent}
-                  </td>
+              <th style={thStyle}>
+                Phone Number
+              </th>
 
-                  <td style={tdStyle}>
+              <th style={thStyle}>
+                Status
+              </th>
 
-                    <button
+              <th style={thStyle}>
+                Action
+              </th>
 
-                      style={
-                        approveButtonStyle
-                      }
+            </tr>
 
-                      onClick={() =>
-                        approveResult(
-                          result.id
-                        )
-                      }
+          </thead>
+
+          <tbody>
+
+            {
+
+              filteredResults.length === 0
+
+                ?
+
+                (
+
+                  <tr>
+
+                    <td
+                      colSpan="7"
+                      style={emptyStyle}
                     >
 
-                      Approve
+                      No pending results found
 
-                    </button>
+                    </td>
 
-                    <button
+                  </tr>
 
-                      style={
-                        rejectButtonStyle
-                      }
+                )
 
-                      onClick={() =>
-                        rejectResult(
-                          result.id
-                        )
-                      }
+                :
+
+                filteredResults.map(
+                  (
+                    result,
+                    index
+                  ) => (
+
+                    <tr
+
+                      key={result.id}
+
+                      style={{
+
+                        backgroundColor:
+
+                          index % 2 === 0
+
+                            ? "#ffffff"
+
+                            : "#f8fafc"
+                      }}
                     >
 
-                      Reject
+                      <td style={tdStyle}>
+                        {result.id}
+                      </td>
 
-                    </button>
+                      <td style={tdStyle}>
+                        {result.ward}
+                      </td>
 
-                  </td>
+                      <td style={tdStyle}>
+                        {
+                          result.polling_unit
+                        }
+                      </td>
 
-                </tr>
-              )
-            )
-          }
+                      <td style={tdStyle}>
+                        {
+                          result.party_agent
+                        }
+                      </td>
 
-        </tbody>
+                      <td style={tdStyle}>
+                        {
+                          result.phone_number
+                        }
+                      </td>
 
-      </table>
+                      <td style={tdStyle}>
+
+                        <span
+                          style={
+                            pendingBadge
+                          }
+                        >
+
+                          Pending
+
+                        </span>
+
+                      </td>
+
+                      <td style={tdStyle}>
+
+                        <button
+
+                          style={
+                            approveButtonStyle
+                          }
+
+                          onClick={() =>
+                            approveResult(
+                              result.id
+                            )
+                          }
+                        >
+
+                          Approve
+
+                        </button>
+
+                        <button
+
+                          style={
+                            rejectButtonStyle
+                          }
+
+                          onClick={() =>
+                            rejectResult(
+                              result.id
+                            )
+                          }
+                        >
+
+                          Reject
+
+                        </button>
+
+                      </td>
+
+                    </tr>
+                  )
+                )
+            }
+
+          </tbody>
+
+        </table>
+
+      </div>
 
     </div>
   );
@@ -328,45 +523,203 @@ function ApprovalPanel() {
 |--------------------------------------------------------------------------
 */
 
-const containerStyle = {
-  marginTop: "30px"
+const pageStyle = {
+
+  padding: "20px"
+};
+
+const titleStyle = {
+
+  marginBottom: "20px",
+
+  fontSize: "32px",
+
+  fontWeight: "700"
+};
+
+const summaryGrid = {
+
+  display: "grid",
+
+  gridTemplateColumns:
+    "repeat(auto-fit,minmax(250px,1fr))",
+
+  gap: "15px",
+
+  marginBottom: "20px"
+};
+
+const summaryCard = {
+
+  backgroundColor:
+    "#ffffff",
+
+  padding: "20px",
+
+  borderRadius: "10px",
+
+  textAlign: "center",
+
+  boxShadow:
+    "0 2px 8px rgba(0,0,0,0.08)"
+};
+
+const searchStyle = {
+
+  width: "350px",
+
+  padding: "10px",
+
+  border:
+    "1px solid #d1d5db",
+
+  borderRadius:
+    "8px",
+
+  marginBottom:
+    "20px",
+
+  outline: "none"
+};
+
+const tableContainer = {
+
+  backgroundColor:
+    "#ffffff",
+
+  borderRadius:
+    "10px",
+
+  overflowX:
+    "auto",
+
+  boxShadow:
+    "0 2px 8px rgba(0,0,0,0.08)"
 };
 
 const tableStyle = {
+
   width: "100%",
-  borderCollapse: "collapse",
-  backgroundColor: "#ffffff"
+
+  borderCollapse:
+    "collapse"
 };
 
 const thStyle = {
-  border: "1px solid #ccc",
-  padding: "12px",
-  backgroundColor: "#f0f0f0"
+
+  backgroundColor:
+    "#0f172a",
+
+  color:
+    "#ffffff",
+
+  padding:
+    "14px",
+
+  border:
+    "1px solid #334155",
+
+  whiteSpace:
+    "nowrap"
 };
 
 const tdStyle = {
-  border: "1px solid #ccc",
-  padding: "12px",
-  textAlign: "center"
+
+  padding:
+    "12px",
+
+  border:
+    "1px solid #e5e7eb",
+
+  textAlign:
+    "center"
+};
+
+const emptyStyle = {
+
+  padding:
+    "40px",
+
+  textAlign:
+    "center",
+
+  color:
+    "#64748b",
+
+  fontWeight:
+    "500"
+};
+
+const pendingBadge = {
+
+  backgroundColor:
+    "#f59e0b",
+
+  color:
+    "#ffffff",
+
+  padding:
+    "6px 12px",
+
+  borderRadius:
+    "20px",
+
+  fontSize:
+    "12px",
+
+  fontWeight:
+    "bold"
 };
 
 const approveButtonStyle = {
-  padding: "8px 12px",
-  marginRight: "10px",
-  backgroundColor: "green",
-  color: "white",
-  border: "none",
-  borderRadius: "5px",
-  cursor: "pointer"
+
+  padding:
+    "8px 14px",
+
+  marginRight:
+    "10px",
+
+  backgroundColor:
+    "#16a34a",
+
+  color:
+    "#ffffff",
+
+  border:
+    "none",
+
+  borderRadius:
+    "6px",
+
+  cursor:
+    "pointer",
+
+  fontWeight:
+    "600"
 };
 
 const rejectButtonStyle = {
-  padding: "8px 12px",
-  backgroundColor: "red",
-  color: "white",
-  border: "none",
-  borderRadius: "5px",
-  cursor: "pointer"
+
+  padding:
+    "8px 14px",
+
+  backgroundColor:
+    "#dc2626",
+
+  color:
+    "#ffffff",
+
+  border:
+    "none",
+
+  borderRadius:
+    "6px",
+
+  cursor:
+    "pointer",
+
+  fontWeight:
+    "600"
 };
 
 export default ApprovalPanel;

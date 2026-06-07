@@ -36,9 +36,8 @@ const menuItems = [
   },
 
   {
-  label: "Cancelled Elections",
-  path: "/cancelled-results",
-  icon: "🚫"
+  name: "🚫 Cancelled Elections",
+  path: "/cancelled-results"
 },
 
   {
@@ -70,12 +69,9 @@ const menuItems = [
 
         menuItems.map((item) => (
 
-          <Link
-
-  key={item.name}
-
+         <Link
+  key={item.path}
   to={item.path}
-
   style={linkStyle}
 >
 

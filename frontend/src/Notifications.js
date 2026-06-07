@@ -4,34 +4,14 @@ import React, {
 } from "react";
 
 import axios from "axios";
-
-import { io }
-from "socket.io-client";
-
-/*
-====================================
-API
-====================================
-*/
+import { io } from "socket.io-client";
 
 const API_URL =
   "https://bauchi-election-dashboard.onrender.com";
 
-/*
-====================================
-SOCKET
-====================================
-*/
-
 const socket = io(API_URL);
 
 function Notifications() {
-
-  /*
-  ====================================
-  STATE
-  ====================================
-  */
 
   const [
     notifications,
@@ -42,6 +22,11 @@ function Notifications() {
     loading,
     setLoading
   ] = useState(true);
+
+  const [
+    search,
+    setSearch
+  ] = useState("");
 
   /*
   ====================================
@@ -59,14 +44,15 @@ function Notifications() {
             `${API_URL}/api/notifications`
           );
 
+        let data = [];
+
         if (
           response.data &&
           response.data.notifications
         ) {
 
-          setNotifications(
-            response.data.notifications
-          );
+          data =
+            response.data.notifications;
 
         } else if (
           Array.isArray(
@@ -74,17 +60,14 @@ function Notifications() {
           )
         ) {
 
-          setNotifications(
-            response.data
-          );
+          data = response.data;
         }
+
+        setNotifications(data);
 
       } catch (error) {
 
-        console.error(
-          "Fetch Notification Error:",
-          error
-        );
+        console.error(error);
 
       } finally {
 
@@ -109,10 +92,7 @@ function Notifications() {
 
       } catch (error) {
 
-        console.error(
-          "Read Notification Error:",
-          error
-        );
+        console.error(error);
       }
     };
 
@@ -132,7 +112,7 @@ function Notifications() {
 
   /*
   ====================================
-  REALTIME SOCKET EVENTS
+  REALTIME SOCKETS
   ====================================
   */
 
@@ -229,11 +209,65 @@ function Notifications() {
 
   /*
   ====================================
-  BADGE COLOR
+  FILTER
   ====================================
   */
 
-  const getBadgeColor =
+  const filteredNotifications =
+
+    notifications.filter(
+
+      (item) =>
+
+        item.message
+          ?.toLowerCase()
+          .includes(
+            search.toLowerCase()
+          )
+
+        ||
+
+        item.event_type
+          ?.toLowerCase()
+          .includes(
+            search.toLowerCase()
+          )
+    );
+
+  /*
+  ====================================
+  COUNTERS
+  ====================================
+  */
+
+  const approvals =
+    notifications.filter(
+      (n) =>
+        n.event_type ===
+        "APPROVAL"
+    ).length;
+
+  const rejections =
+    notifications.filter(
+      (n) =>
+        n.event_type ===
+        "REJECTION"
+    ).length;
+
+  const submissions =
+    notifications.filter(
+      (n) =>
+        n.event_type ===
+        "SUBMISSION"
+    ).length;
+
+  /*
+  ====================================
+  COLORS
+  ====================================
+  */
+
+  const getColor =
     (type) => {
 
       switch (type) {
@@ -255,35 +289,91 @@ function Notifications() {
       }
     };
 
+  const getIcon =
+    (type) => {
+
+      switch (type) {
+
+        case "APPROVAL":
+          return "✅";
+
+        case "REJECTION":
+          return "❌";
+
+        case "SUBMISSION":
+          return "📨";
+
+        case "SYSTEM":
+          return "⚙️";
+
+        default:
+          return "🔔";
+      }
+    };
+
   return (
 
     <div style={pageStyle}>
 
-      <div style={headerStyle}>
+      <h1 style={titleStyle}>
+        Notifications Center
+      </h1>
 
-        <h1
-          style={{
-            margin: 0
-          }}
-        >
-          Live Notifications
-        </h1>
+      {/* SUMMARY */}
 
-        <div
-          style={counterStyle}
-        >
-          Total:
-          {" "}
-          {
-            notifications.length
-          }
+      <div style={summaryGrid}>
+
+        <div style={summaryCard}>
+          <h4>Total</h4>
+          <h1>
+            {notifications.length}
+          </h1>
+        </div>
+
+        <div style={summaryCard}>
+          <h4>Approvals</h4>
+          <h1>
+            {approvals}
+          </h1>
+        </div>
+
+        <div style={summaryCard}>
+          <h4>Rejections</h4>
+          <h1>
+            {rejections}
+          </h1>
+        </div>
+
+        <div style={summaryCard}>
+          <h4>Submissions</h4>
+          <h1>
+            {submissions}
+          </h1>
         </div>
 
       </div>
 
+      {/* SEARCH */}
+
+      <input
+        type="text"
+        placeholder="Search notifications..."
+        value={search}
+        onChange={(e) =>
+          setSearch(
+            e.target.value
+          )
+        }
+        style={searchStyle}
+      />
+
+      {/* CONTENT */}
+
       {
 
-        loading ?
+        loading
+
+          ?
 
           (
 
@@ -295,107 +385,129 @@ function Notifications() {
 
           :
 
-          notifications.length === 0 ?
+          filteredNotifications.length === 0
+
+          ?
 
           (
 
             <div style={emptyStyle}>
-              No notifications available
+              No notifications found
             </div>
 
           )
 
           :
 
-          notifications.map(
+          (
 
-            (notification) => (
+            <div style={feedContainer}>
 
-              <div
+              {
 
-                key={
-                  notification.id
-                }
+                filteredNotifications.map(
+                  (notification) => (
 
-                style={
-                  cardStyle
-                }
-              >
+                    <div
 
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent:
-                      "space-between",
-                    alignItems:
-                      "center",
-                    marginBottom:
-                      "10px"
-                  }}
-                >
+                      key={
+                        notification.id
+                      }
 
-                  <span
-                    style={{
-                      ...badgeStyle,
+                      style={
+                        cardStyle
+                      }
+                    >
 
-                      backgroundColor:
-                        getBadgeColor(
-                          notification.event_type
-                        )
-                    }}
-                  >
+                      <div
+                        style={
+                          cardHeader
+                        }
+                      >
 
-                    {
-                      notification.event_type
-                    }
+                        <div>
 
-                  </span>
+                          <span
+                            style={{
+                              fontSize:
+                                "22px",
+                              marginRight:
+                                "10px"
+                            }}
+                          >
+                            {
 
-                  <span
-                    style={{
-                      color:
-                        "#64748b",
-                      fontSize:
-                        "12px"
-                    }}
-                  >
+                              getIcon(
+                                notification.event_type
+                              )
 
-                    {
+                            }
+                          </span>
 
-                      notification.created_at
+                          <span
+                            style={{
+                              ...badgeStyle,
 
-                        ?
+                              backgroundColor:
+                                getColor(
+                                  notification.event_type
+                                )
+                            }}
+                          >
 
-                        new Date(
-                          notification.created_at
-                        ).toLocaleString()
+                            {
+                              notification.event_type
+                            }
 
-                        :
+                          </span>
 
-                        ""
-                    }
+                        </div>
 
-                  </span>
+                        <span
+                          style={
+                            dateStyle
+                          }
+                        >
 
-                </div>
+                          {
 
-                <div
-                  style={{
-                    fontSize:
-                      "15px",
-                    lineHeight:
-                      "1.6"
-                  }}
-                >
+                            notification.created_at
 
-                  {
-                    notification.message
-                  }
+                              ?
 
-                </div>
+                              new Date(
+                                notification.created_at
+                              ).toLocaleString()
 
-              </div>
-            )
+                              :
+
+                              ""
+
+                          }
+
+                        </span>
+
+                      </div>
+
+                      <div
+                        style={
+                          messageStyle
+                        }
+                      >
+
+                        {
+                          notification.message
+                        }
+
+                      </div>
+
+                    </div>
+                  )
+                )
+              }
+
+            </div>
+
           )
       }
 
@@ -414,7 +526,80 @@ const pageStyle = {
   padding: "20px"
 };
 
-const headerStyle = {
+const titleStyle = {
+
+  marginBottom: "20px",
+
+  fontSize: "34px",
+
+  fontWeight: "700"
+};
+
+const summaryGrid = {
+
+  display: "grid",
+
+  gridTemplateColumns:
+    "repeat(auto-fit,minmax(220px,1fr))",
+
+  gap: "15px",
+
+  marginBottom: "20px"
+};
+
+const summaryCard = {
+
+  background: "#ffffff",
+
+  borderRadius: "12px",
+
+  padding: "20px",
+
+  textAlign: "center",
+
+  boxShadow:
+    "0 2px 8px rgba(0,0,0,0.08)"
+};
+
+const searchStyle = {
+
+  width: "350px",
+
+  padding: "10px",
+
+  borderRadius: "8px",
+
+  border:
+    "1px solid #d1d5db",
+
+  marginBottom: "20px"
+};
+
+const feedContainer = {
+
+  maxHeight: "700px",
+
+  overflowY: "auto"
+};
+
+const cardStyle = {
+
+  background: "#ffffff",
+
+  border:
+    "1px solid #e5e7eb",
+
+  borderRadius: "12px",
+
+  padding: "18px",
+
+  marginBottom: "15px",
+
+  boxShadow:
+    "0 2px 8px rgba(0,0,0,0.08)"
+};
+
+const cardHeader = {
 
   display: "flex",
 
@@ -424,45 +609,7 @@ const headerStyle = {
   alignItems:
     "center",
 
-  marginBottom: "20px"
-};
-
-const counterStyle = {
-
-  backgroundColor:
-    "#0f172a",
-
-  color: "#fff",
-
-  padding:
-    "8px 16px",
-
-  borderRadius:
-    "20px",
-
-  fontWeight:
-    "bold"
-};
-
-const cardStyle = {
-
-  backgroundColor:
-    "#ffffff",
-
-  border:
-    "1px solid #e2e8f0",
-
-  borderRadius:
-    "12px",
-
-  padding:
-    "16px",
-
-  marginBottom:
-    "12px",
-
-  boxShadow:
-    "0 2px 6px rgba(0,0,0,0.08)"
+  marginBottom: "12px"
 };
 
 const badgeStyle = {
@@ -482,25 +629,34 @@ const badgeStyle = {
     "bold"
 };
 
+const dateStyle = {
+
+  color: "#64748b",
+
+  fontSize: "12px"
+};
+
+const messageStyle = {
+
+  fontSize: "15px",
+
+  lineHeight: "1.6"
+};
+
 const emptyStyle = {
 
-  backgroundColor:
-    "#ffffff",
-
-  padding:
-    "40px",
-
-  borderRadius:
-    "12px",
-
-  textAlign:
-    "center",
-
-  color:
-    "#64748b",
+  background: "#ffffff",
 
   border:
-    "1px solid #e2e8f0"
+    "1px solid #e5e7eb",
+
+  borderRadius: "12px",
+
+  padding: "40px",
+
+  textAlign: "center",
+
+  color: "#64748b"
 };
 
 export default Notifications;
