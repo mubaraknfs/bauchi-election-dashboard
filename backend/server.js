@@ -1783,11 +1783,11 @@ RETURNING *;
 
   data.cancellation_comment || null,
 
-        data.registered_card,
-        data.accredited_card,
-        data.total_vote_cast,
-        data.total_vote_rejected,
-        data.valid_vote,
+        data.registered_card || 0,
+        data.accredited_card || 0,
+        data.total_vote_cast || 0,
+        data.total_vote_rejected || 0,
+        data.valid_vote || 0,
 
         data.accord || 0,
         data.aa || 0,
