@@ -71,6 +71,17 @@ module.exports = (
         process.env.JWT_SECRET
       );
 
+    const verified =
+  jwt.verify(
+    token,
+    process.env.JWT_SECRET
+  );
+
+console.log(
+  "TOKEN USER:",
+  verified
+);
+
     /*
     ====================================
     SAVE USER
