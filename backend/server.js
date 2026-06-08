@@ -706,20 +706,16 @@ app.post(
         });
       }
 
-      const token =
-        jwt.sign(
-
-          {
-            id: user.id,
-            role: user.role
-          },
-
-          process.env.JWT_SECRET,
-
-          {
-            expiresIn: "1d"
-          }
-        );
+      const token = jwt.sign(
+  {
+    id: user.id,
+    role: user.role
+  },
+  process.env.JWT_SECRET,
+  {
+    expiresIn: "24h"
+  }
+);
 
       res.json({
 
