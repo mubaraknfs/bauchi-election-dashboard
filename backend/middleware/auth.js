@@ -71,16 +71,16 @@ module.exports = (
         process.env.JWT_SECRET
       );
 
-    const verified =
-  jwt.verify(
-    token,
-    process.env.JWT_SECRET
-  );
+    /*
+    ====================================
+    DEBUG TOKEN
+    ====================================
+    */
 
-console.log(
-  "TOKEN USER:",
-  verified
-);
+    console.log(
+      "TOKEN USER:",
+      verified
+    );
 
     /*
     ====================================
