@@ -1,3 +1,11 @@
+import SuperAdminSidebar
+from "./components/SuperAdminSidebar";
+import AdminSidebar
+from "./components/AdminSidebar";
+import ObserverSidebar
+from "./components/ObserverSidebar";
+import CollationSidebar
+from "./components/CollationSidebar";
 import SituationRoomDashboard
 from "./pages/SituationRoomDashboard";
 import CancelledResults
@@ -28,10 +36,7 @@ import {
 } from "react-router-dom";
 import UserManagement
 from "./pages/UserManagement";
-import SuperAdminDashboard
-from "./pages/SuperAdminDashboard";
 import RoleRoute from "./routes/RoleRoute";
-import Sidebar from "./components/Sidebar";
 import ElectionMap
 from "./ElectionMap";
 import FraudDetection
@@ -82,6 +87,10 @@ const socket = io(
 );
 
 function App() {
+
+const role =
+  localStorage.getItem("role") ||
+  "super_admin";
 
 /*
   ====================================
@@ -879,29 +888,36 @@ return (
   <BrowserRouter>
 
     <div
-      style={{
-        display: "flex",
-        minHeight: "100vh"
-      }}
-    >
-
-      <Sidebar />
-
-      <div
-        style={{
-          flex: 1
-        }}
-      >
-
-        <Header />
-
-<QuickActions />
-
-<div
   style={{
-    padding: "20px"
+    display: "flex",
+    minHeight: "100vh"
   }}
 >
+{
+  window.location.pathname === "/observer"
+    ? null
+    : <SuperAdminSidebar />
+}
+  <div
+    style={{
+      flex: 1
+    }}
+  >
+
+    {
+  window.location.pathname !== "/observer" && (
+    <>
+      <Header />
+      <QuickActions />
+    </>
+  )
+}
+
+    <div
+      style={{
+        padding: "20px"
+      }}
+    >
 
           <Routes>
 <Route
@@ -959,6 +975,20 @@ return (
 />
 
 <Route
+  path="/export-excel"
+  element={
+    <ExportExcel />
+  }
+/>
+
+<Route
+  path="/export-pdf"
+  element={
+    <ExportPDF />
+  }
+/>
+
+<Route
   path="/submit-result"
   element={
     <RoleRoute
@@ -981,7 +1011,7 @@ return (
                     "super_admin"
                   ]}
                 >
-                  <SuperAdminDashboard />
+                  <SituationRoomDashboard />
                 </RoleRoute>
               }
             />

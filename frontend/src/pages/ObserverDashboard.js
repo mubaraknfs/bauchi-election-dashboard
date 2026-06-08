@@ -1,6 +1,9 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 function ObserverDashboard() {
+
+  const navigate = useNavigate();
 
   return (
 
@@ -16,37 +19,80 @@ function ObserverDashboard() {
 
       <div style={gridStyle}>
 
-        <div style={cardStyle}>
-          Live Polling Unit Results
+        <div
+          style={cardStyle}
+          onClick={() => navigate("/")}
+        >
+          Main Dashboard
         </div>
 
-        <div style={cardStyle}>
-          Overvoting Detection
+        <div
+          style={cardStyle}
+          onClick={() => navigate("/polling-units-live")}
+        >
+          Polling Units Dashboard
         </div>
 
-        <div style={cardStyle}>
-          Suspicious Polling Units
+        <div
+          style={cardStyle}
+          onClick={() => navigate("/cancelled-results")}
+        >
+          Cancelled Elections
         </div>
 
-        <div style={cardStyle}>
-          State Analytics
+        <div
+          style={cardStyle}
+          onClick={() => navigate("/fraud")}
+        >
+          Fraud Detection
         </div>
 
-        <div style={cardStyle}>
-          Ward Analytics
+        <div
+          style={cardStyle}
+          onClick={() => navigate("/state-live")}
+        >
+          State Dashboard
         </div>
 
-        <div style={cardStyle}>
-          LGA Analytics
+        <div
+          style={cardStyle}
+          onClick={() => navigate("/wards-live")}
+        >
+          Ward Dashboard
         </div>
 
-        <div style={cardStyle}>
+        <div
+          style={cardStyle}
+          onClick={() => navigate("/lgas-live")}
+        >
+          LGA Dashboard
+        </div>
+
+        <div
+          style={cardStyle}
+          onClick={() => navigate("/map")}
+        >
           GIS Election Map
+        </div>
+
+        <div
+          style={cardStyle}
+          onClick={() => navigate("/audit-logs")}
+        >
+          Audit Logs
+        </div>
+
+        <div
+          style={cardStyle}
+          onClick={() => navigate("/export-pdf")}
+        >
+          Export Reports
         </div>
 
       </div>
 
     </div>
+
   );
 }
 
@@ -82,6 +128,8 @@ const cardStyle = {
   textAlign: "center",
 
   cursor: "pointer",
+
+  transition: "all 0.2s ease",
 
   boxShadow:
     "0 2px 5px rgba(0,0,0,0.1)"

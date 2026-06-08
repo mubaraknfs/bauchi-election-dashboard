@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-function Sidebar() {
+function SuperAdminSidebar() {
 
 const menuItems = [
 
@@ -133,4 +133,4 @@ const buttonStyle = {
   textAlign: "left"
 };
 
-export default Sidebar;
+export default SuperAdminSidebar;

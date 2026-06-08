@@ -2393,7 +2393,7 @@ SUM(prp) AS prp,
 SUM(sdp) AS sdp,
 SUM(yp) AS yp,
 SUM(ypp) AS ypp,
-SUM(zlp) AS zlp
+SUM(zlp) AS zlp,
 
           SUM(valid_vote)
           AS total_valid_votes,
