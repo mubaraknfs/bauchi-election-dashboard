@@ -2594,12 +2594,13 @@ app.get(
 
   auth,
 
-  authorizeRoles(
+ authorizeRoles(
 
-    "admin",
-    "super_admin"
+  "observer",
+  "admin",
+  "super_admin"
 
-  ),
+),
 
   async (req, res) => {
 
