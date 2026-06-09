@@ -46,8 +46,6 @@ app.use(helmet());
 
 app.use(express.json());
 
-const path = require("path");
-
 app.use(
   "/uploads",
   express.static(
@@ -3149,6 +3147,34 @@ app.get(
           "Failed to load history"
       });
     }
+  }
+);
+
+app.get(
+  "/api/check-files",
+  (req, res) => {
+
+    const uploadDir =
+      path.join(
+        __dirname,
+        "uploads",
+        "evidence"
+      );
+
+    console.log(
+      "UPLOAD DIR:",
+      uploadDir
+    );
+
+    console.log(
+      fs.readdirSync(
+        uploadDir
+      )
+    );
+
+    res.json({
+      success: true
+    });
   }
 );
 
