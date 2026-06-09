@@ -3098,6 +3098,50 @@ app.post(
 
 /*
 ====================================
+IMPORT HISTORY
+====================================
+*/
+app.get(
+
+  "/api/import-history",
+
+  auth,
+
+  async (req, res) => {
+
+    try {
+
+      const result =
+        await pool.query(
+
+          `
+          SELECT *
+          FROM import_history
+          ORDER BY id DESC
+          `
+        );
+
+      res.json(
+        result.rows
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to load history"
+      });
+    }
+  }
+);
+
+/*
+====================================
 START SERVER
 ====================================
 */
