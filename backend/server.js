@@ -3178,6 +3178,31 @@ app.get(
   }
 );
 
+app.get(
+  "/api/files-test",
+  (req, res) => {
+
+    const uploadPath =
+      path.join(
+        __dirname,
+        "uploads",
+        "evidence"
+      );
+
+    const files =
+      fs.existsSync(uploadPath)
+
+        ? fs.readdirSync(uploadPath)
+
+        : [];
+
+    res.json({
+      uploadPath,
+      files
+    });
+  }
+);
+
 /*
 ====================================
 START SERVER
