@@ -2,6 +2,7 @@ const multer =
   require("multer");
 const path =
   require("path");
+const fs = require("fs");
 const rateLimit =
   require("express-rate-limit");
 const helmet =
@@ -47,6 +48,28 @@ app.use(express.json());
 
 /*
 ====================================
+CREATE UPLOAD DIRECTORY
+====================================
+*/
+
+if (
+  !fs.existsSync(
+    "uploads/evidence"
+  )
+) {
+
+  fs.mkdirSync(
+
+    "uploads/evidence",
+
+    {
+      recursive: true
+    }
+  );
+}
+
+/*
+====================================
 MULTER CONFIGURATION
 ====================================
 */
@@ -61,9 +84,13 @@ const storage =
       ) {
 
         cb(
-          null,
-          "uploads/evidence"
-        );
+  null,
+  path.join(
+    __dirname,
+    "uploads",
+    "evidence"
+  )
+);
       },
 
     filename:
