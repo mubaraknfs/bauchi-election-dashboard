@@ -3154,43 +3154,6 @@ app.get(
 
 /*
 ====================================
-TEST PATH
-====================================
-*/
-app.get(
-  "/test-path",
-  (req, res) => {
-
-    const fs =
-      require("fs");
-
-    const path =
-      require("path");
-
-    const uploadDir =
-      path.join(
-        __dirname,
-        "uploads",
-        "evidence"
-      );
-
-    console.log(
-      "UPLOAD DIR:",
-      uploadDir
-    );
-
-    console.log(
-      "FILES:",
-      fs.readdirSync(
-        uploadDir
-      )
-    );
-
-    res.send("ok");
-  }
-);
-/*
-====================================
 START SERVER
 ====================================
 */
