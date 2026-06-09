@@ -3116,7 +3116,7 @@ app.get(
 
           `
           SELECT *
-          FROM import_history
+          FROM evidence_uploads
           ORDER BY id DESC
           `
         );

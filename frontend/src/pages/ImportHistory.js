@@ -30,22 +30,26 @@ function ImportHistory() {
           );
 
         const response =
-          await axios.get(
+  await axios.get(
 
-            `${API_URL}/api/import-history`,
+    `${API_URL}/api/import-history`,
 
-            {
-              headers: {
+    {
+      headers: {
+        Authorization:
+          `Bearer ${token}`
+      }
+    }
+  );
 
-                Authorization:
-                  `Bearer ${token}`
-              }
-            }
-          );
+console.log(
+  "IMPORT HISTORY RESPONSE:",
+  response.data
+);
 
-        setHistory(
-          response.data
-        );
+setHistory(
+  response.data
+);
 
       } catch (error) {
 
