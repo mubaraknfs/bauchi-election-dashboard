@@ -6,38 +6,29 @@ function CollationSidebar() {
   const menuItems = [
 
     {
-      name: "Collation Dashboard",
-      path: "/collation"
-    },
+  name: "Result Submission",
+  path: "/submit-result"
+},
 
-    {
-      name: "Polling Units",
-      path: "/polling-units"
-    },
+{
+  name: "Result Import Center",
+  path: "/import-results"
+},
 
-    {
-      name: "Wards",
-      path: "/wards"
-    },
+{
+  name: "Import History",
+  path: "/import-history"
+},
 
-    {
-      name: "LGAs",
-      path: "/lgas"
-    },
-
-    {
-      name: "Approvals",
-      path: "/approvals"
-    },
-
-    {
-      name: "Audit Logs",
-      path: "/audit-logs"
-    }
+{
+  name: "Evidence Upload",
+  path: "/evidence-upload"
+},
 
   ];
 
   return (
+
     <div style={sidebarStyle}>
 
       <h2 style={titleStyle}>
@@ -61,6 +52,7 @@ function CollationSidebar() {
       ))}
 
     </div>
+
   );
 }
 
@@ -68,12 +60,11 @@ const sidebarStyle = {
   width: "250px",
   minHeight: "100vh",
   backgroundColor: "#1f2937",
-  padding: "20px",
-  boxSizing: "border-box"
+  padding: "20px"
 };
 
 const titleStyle = {
-  color: "white",
+  color: "#fff",
   marginBottom: "30px"
 };
 
@@ -87,7 +78,7 @@ const buttonStyle = {
   marginBottom: "10px",
   border: "none",
   backgroundColor: "#374151",
-  color: "white",
+  color: "#fff",
   borderRadius: "6px",
   cursor: "pointer",
   textAlign: "left"

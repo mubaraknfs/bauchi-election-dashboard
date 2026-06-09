@@ -1,3 +1,9 @@
+import EvidenceUpload
+from "./pages/EvidenceUpload";
+import ResultImportCenter
+from "./pages/ResultImportCenter";
+import ImportHistory
+from "./pages/ImportHistory";
 import SuperAdminSidebar
 from "./components/SuperAdminSidebar";
 import AdminSidebar
@@ -88,9 +94,12 @@ const socket = io(
 
 function App() {
 
+const user = JSON.parse(
+  localStorage.getItem("user")
+);
+
 const role =
-  localStorage.getItem("role") ||
-  "super_admin";
+  user?.role || "";
 
 /*
   ====================================
@@ -877,6 +886,16 @@ if (!token) {
   return <Login />;
 }
 
+console.log(
+  "USER =",
+  user
+);
+
+console.log(
+  "ROLE =",
+  role
+);
+
 /*
 ====================================
 APP ROUTES
@@ -894,8 +913,12 @@ return (
   }}
 >
 {
-  window.location.pathname === "/observer"
+  role === "observer"
     ? null
+    : role === "admin"
+    ? <AdminSidebar />
+    : role === "collation_officer"
+    ? <CollationSidebar />
     : <SuperAdminSidebar />
 }
   <div
@@ -903,9 +926,8 @@ return (
       flex: 1
     }}
   >
-
-    {
-  window.location.pathname !== "/observer" && (
+{
+  role !== "observer" && (
     <>
       <Header />
       <QuickActions />
@@ -975,16 +997,47 @@ return (
 />
 
 <Route
-  path="/export-excel"
+  path="/export-pdf"
   element={
-    <ExportExcel />
+    <ExportPDF
+      stateSummary={stateSummary}
+    />
   }
 />
 
 <Route
-  path="/export-pdf"
+  path="/export-excel"
   element={
-    <ExportPDF />
+    <ExportExcel
+      stateSummary={stateSummary}
+      lgaSummaries={lgaSummaries}
+      wardSummaries={allWardSummaries}
+      pollingResults={results}
+      auditLogs={auditLogs}
+    />
+  }
+/>
+<Route
+  path="/import-results"
+  element={<ResultImportCenter />}
+/>
+
+<Route
+  path="/import-history"
+  element={<ImportHistory />}
+/>
+
+<Route
+  path="/evidence-upload"
+  element={
+    <RoleRoute
+      allowedRoles={[
+        "collation_officer",
+        "super_admin"
+      ]}
+    >
+      <EvidenceUpload />
+    </RoleRoute>
   }
 />
 
@@ -1050,18 +1103,19 @@ return (
             {/* AUDIT LOGS */}
 
             <Route
-              path="/audit-logs"
-              element={
-                <RoleRoute
-                  allowedRoles={[
-                    "super_admin",
-                    "admin"
-                  ]}
-                >
-                  <AuditLogs />
-                </RoleRoute>
-              }
-            />
+  path="/audit-logs"
+  element={
+    <RoleRoute
+      allowedRoles={[
+        "super_admin",
+        "admin",
+        "observer"
+      ]}
+    >
+      <AuditLogs />
+    </RoleRoute>
+  }
+/>
 
             {/* FRAUD */}
 

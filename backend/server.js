@@ -1,3 +1,7 @@
+const multer =
+  require("multer");
+const path =
+  require("path");
 const rateLimit =
   require("express-rate-limit");
 const helmet =
@@ -40,6 +44,92 @@ app.use(
 app.use(helmet());
 
 app.use(express.json());
+
+/*
+====================================
+MULTER CONFIGURATION
+====================================
+*/
+const storage =
+  multer.diskStorage({
+
+    destination:
+      function (
+        req,
+        file,
+        cb
+      ) {
+
+        cb(
+          null,
+          "uploads/evidence"
+        );
+      },
+
+    filename:
+      function (
+        req,
+        file,
+        cb
+      ) {
+
+        cb(
+
+          null,
+
+          Date.now() +
+          "-" +
+          file.originalname
+        );
+      }
+  });
+
+const upload =
+  multer({
+
+    storage,
+
+    fileFilter:
+      (
+        req,
+        file,
+        cb
+      ) => {
+
+        const allowed = [
+
+          "application/pdf",
+
+          "image/jpeg",
+
+          "image/png",
+
+          "image/jpg"
+        ];
+
+        if (
+
+          allowed.includes(
+            file.mimetype
+          )
+
+        ) {
+
+          cb(
+            null,
+            true
+          );
+
+        } else {
+
+          cb(
+            new Error(
+              "Only PDF and Images allowed"
+            )
+          );
+        }
+      }
+  });
 
 /*
 ====================================
@@ -2897,6 +2987,85 @@ ORDER BY lg.lga_name;
 
     }
 
+  }
+);
+
+/*
+====================================
+UPLOAD EVIDENCE
+====================================
+*/
+app.post(
+
+  "/api/upload-evidence",
+
+  auth,
+
+  authorizeRoles(
+    "collation_officer",
+    "super_admin"
+  ),
+
+  upload.single("file"),
+
+  async (
+    req,
+    res
+  ) => {
+
+    try {
+
+      await pool.query(
+
+        `
+        INSERT INTO evidence_uploads
+        (
+          filename,
+          original_name,
+          uploaded_by,
+          uploaded_role,
+          file_path
+        )
+        VALUES
+        (
+          $1,$2,$3,$4,$5
+        )
+        `,
+
+        [
+
+          req.file.filename,
+
+          req.file.originalname,
+
+          req.user.id,
+
+          req.user.role,
+
+          req.file.path
+        ]
+      );
+
+      res.json({
+
+        success: true,
+
+        message:
+          "Evidence uploaded successfully"
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          "Upload failed"
+      });
+    }
   }
 );
 

@@ -42,6 +42,11 @@ const handleLogin = async () => {
         response.data.token
       );
 
+    console.log(
+  "TOKEN SAVED:",
+  response.data.token
+);
+
       localStorage.setItem(
 
         "user",
@@ -51,9 +56,40 @@ const handleLogin = async () => {
         )
       );
 
+    console.log(
+  "TOKEN SAVED:",
+  response.data.token
+);
+
       alert("Login successful");
 
-      window.location.reload();
+const role =
+  response.data.user.role;
+
+if (role === "observer") {
+
+  window.location.href =
+    "/observer";
+
+} else if (
+  role === "admin"
+) {
+
+  window.location.href =
+    "/admin";
+
+} else if (
+  role === "collation_officer"
+) {
+
+  window.location.href =
+    "/collation";
+
+} else {
+
+  window.location.href =
+    "/";
+}
 
     } else {
 
