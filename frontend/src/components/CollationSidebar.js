@@ -6,26 +6,34 @@ function CollationSidebar() {
   const menuItems = [
 
     {
-  name: "Result Submission",
-  path: "/submit-result"
-},
+      name: "Result Submission",
+      path: "/submit-result"
+    },
 
-{
-  name: "Result Import Center",
-  path: "/import-results"
-},
+    {
+      name: "Result Import Center",
+      path: "/import-results"
+    },
 
-{
-  name: "Import History",
-  path: "/import-history"
-},
-
-{
-  name: "Evidence Upload",
-  path: "/evidence-upload"
-},
+    {
+      name: "Evidence Upload",
+      path: "/evidence-upload"
+    }
 
   ];
+
+  const handleLogout = () => {
+
+    localStorage.removeItem(
+      "token"
+    );
+
+    localStorage.removeItem(
+      "user"
+    );
+
+    window.location.href = "/";
+  };
 
   return (
 
@@ -51,37 +59,95 @@ function CollationSidebar() {
 
       ))}
 
+      {/* LOGOUT BUTTON */}
+
+      <div
+        style={{
+          marginTop: "30px"
+        }}
+      >
+
+        <button
+          onClick={handleLogout}
+          style={logoutButtonStyle}
+        >
+          Logout
+        </button>
+
+      </div>
+
     </div>
 
   );
 }
 
 const sidebarStyle = {
+
   width: "250px",
+
   minHeight: "100vh",
+
   backgroundColor: "#1f2937",
-  padding: "20px"
+
+  padding: "20px",
+
+  display: "flex",
+
+  flexDirection: "column"
 };
 
 const titleStyle = {
+
   color: "#fff",
+
   marginBottom: "30px"
 };
 
 const linkStyle = {
+
   textDecoration: "none"
 };
 
 const buttonStyle = {
+
   width: "100%",
+
   padding: "14px",
+
   marginBottom: "10px",
+
   border: "none",
+
   backgroundColor: "#374151",
+
   color: "#fff",
+
   borderRadius: "6px",
+
   cursor: "pointer",
-  textAlign: "left"
+
+  textAlign: "left",
+
+  fontWeight: "bold"
+};
+
+const logoutButtonStyle = {
+
+  width: "100%",
+
+  padding: "14px",
+
+  border: "none",
+
+  backgroundColor: "#dc2626",
+
+  color: "#fff",
+
+  borderRadius: "6px",
+
+  cursor: "pointer",
+
+  fontWeight: "bold"
 };
 
 export default CollationSidebar;

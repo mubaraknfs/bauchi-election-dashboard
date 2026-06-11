@@ -927,7 +927,7 @@ return (
     }}
   >
 {
-  role !== "observer" && (
+  ["super_admin", "admin"].includes(role) && (
     <>
       <Header />
       <QuickActions />

@@ -43,9 +43,32 @@ function AdminSidebar() {
     {
       name: "Election Map",
       path: "/map"
-    }
+    },
+
+    {
+  name: "Import History",
+  path: "/import-history"
+},
+
+{
+  name: "Result Import Center",
+  path: "/import-results"
+},
 
   ];
+
+  const handleLogout = () => {
+
+  localStorage.removeItem(
+    "token"
+  );
+
+  localStorage.removeItem(
+    "user"
+  );
+
+  window.location.href = "/";
+};
 
   return (
     <div style={sidebarStyle}>
@@ -72,6 +95,30 @@ function AdminSidebar() {
 
     </div>
   );
+
+  <div
+  style={{
+    marginTop: "30px"
+  }}
+>
+
+  <button
+    onClick={handleLogout}
+    style={{
+      width: "100%",
+      padding: "14px",
+      backgroundColor: "#dc2626",
+      color: "#fff",
+      border: "none",
+      borderRadius: "6px",
+      cursor: "pointer",
+      fontWeight: "bold"
+    }}
+  >
+    Logout
+  </button>
+
+</div>
 }
 
 const sidebarStyle = {

@@ -15,6 +15,21 @@ const menuItems = [
   path: "/submit-result"
 },
 
+    {
+      name: "Evidence Upload",
+      path: "/evidence-upload"
+    },
+
+    {
+  name: "Import History",
+  path: "/import-history"
+},
+
+{
+      name: "Result Import Center",
+      path: "/import-results"
+    },
+
   {
     name: "User Management",
     path: "/users"
