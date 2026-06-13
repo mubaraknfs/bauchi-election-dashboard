@@ -309,8 +309,54 @@ function ResultSubmission() {
         );
 
       alert(
-        response.data.message
-      );
+  response.data.message
+);
+
+setFormData({
+
+  lga_id: "",
+  ward_id: "",
+  ward: "",
+  polling_unit: "",
+
+  cancelled: false,
+
+  cancellation_reason: "",
+  cancellation_comment: "",
+
+  registered_card: "",
+  accredited_card: "",
+  total_vote_cast: "",
+  total_vote_rejected: "",
+  valid_vote: "",
+
+  party_agent: "",
+  phone_number: "",
+  presiding_officer: "",
+
+  aac: "",
+  adc: "",
+  adp: "",
+  apc: "",
+  apga: "",
+  apm: "",
+  app: "",
+  bp: "",
+  lp: "",
+  ndc: "",
+  nnpp: "",
+  nrm: "",
+  pdp: "",
+  prp: "",
+  sdp: "",
+  ypp: "",
+  zlp: ""
+
+});
+
+setWards([]);
+setPollingUnits([]);
+setIsCancelled(false);
 
     } catch (error) {
 

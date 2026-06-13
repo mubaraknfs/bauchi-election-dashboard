@@ -9,7 +9,10 @@ const helmet =
   require("helmet");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
+const nodemailer =
+  require("nodemailer");
+const crypto =
+  require("crypto");
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
@@ -23,6 +26,21 @@ const authorizeRoles =
   require("./middleware/roles");
 
 dotenv.config();
+
+const transporter =
+  nodemailer.createTransport({
+
+    service: "gmail",
+
+    auth: {
+
+      user:
+        process.env.EMAIL_USER,
+
+      pass:
+        process.env.EMAIL_PASS
+    }
+  });
 
 const app = express();
 
@@ -3200,6 +3218,248 @@ app.get(
       uploadPath,
       files
     });
+  }
+);
+
+/*
+====================================
+FORGOT PASSWORD
+====================================
+*/
+app.post(
+
+  "/api/forgot-password",
+
+  async (req, res) => {
+
+    try {
+
+      const { email } =
+        req.body;
+
+      const user =
+        await pool.query(
+
+          `
+          SELECT *
+          FROM users
+          WHERE email = $1
+          `,
+          [email]
+        );
+
+      if (
+        user.rows.length === 0
+      ) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            "Email not found"
+        });
+      }
+
+      const token =
+        crypto.randomBytes(32)
+        .toString("hex");
+
+      const expires =
+        new Date(
+          Date.now() +
+          3600000
+        );
+
+      await pool.query(
+
+        `
+        INSERT INTO
+        password_resets
+        (
+          email,
+          reset_token,
+          expires_at
+        )
+        VALUES
+        (
+          $1,$2,$3
+        )
+        `,
+
+        [
+          email,
+          token,
+          expires
+        ]
+      );
+
+      const resetLink =
+
+        `${process.env.FRONTEND_URL}/reset-password/${token}`;
+
+      await transporter.sendMail({
+
+        from:
+          process.env.EMAIL_USER,
+
+        to: email,
+
+        subject:
+          "Election Dashboard Password Reset",
+
+        html: `
+
+          <h2>Password Reset</h2>
+
+          <p>
+            Click the link below:
+          </p>
+
+          <a href="${resetLink}">
+            Reset Password
+          </a>
+
+          <p>
+            Link expires in 1 hour.
+          </p>
+        `
+      });
+
+      res.json({
+
+        success: true,
+
+        message:
+          "Password reset email sent"
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to send email"
+      });
+    }
+  }
+);
+
+/*
+====================================
+RESET PASSWORD
+====================================
+*/
+app.post(
+
+  "/api/reset-password",
+
+  async (req, res) => {
+
+    try {
+
+      const {
+
+        token,
+        password
+
+      } = req.body;
+
+      const result =
+        await pool.query(
+
+          `
+          SELECT *
+          FROM password_resets
+          WHERE reset_token = $1
+          `,
+          [token]
+        );
+
+      if (
+        result.rows.length === 0
+      ) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            "Invalid token"
+        });
+      }
+
+      const reset =
+        result.rows[0];
+
+      if (
+        new Date() >
+        reset.expires_at
+      ) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            "Token expired"
+        });
+      }
+
+      const hashed =
+        await bcrypt.hash(
+          password,
+          10
+        );
+
+      await pool.query(
+
+        `
+        UPDATE users
+        SET password = $1
+        WHERE email = $2
+        `,
+
+        [
+          hashed,
+          reset.email
+        ]
+      );
+
+      await pool.query(
+
+        `
+        DELETE FROM
+        password_resets
+        WHERE reset_token = $1
+        `,
+        [token]
+      );
+
+      res.json({
+
+        success: true,
+
+        message:
+          "Password updated successfully"
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          "Reset failed"
+      });
+    }
   }
 );
 

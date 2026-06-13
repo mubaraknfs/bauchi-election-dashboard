@@ -5,10 +5,10 @@ function AdminSidebar() {
 
   const menuItems = [
 
-    {
-      name: "Dashboard",
-      path: "/admin"
-    },
+   {
+  name: "Dashboard",
+  path: "/"
+},
 
     {
       name: "Result Submission",

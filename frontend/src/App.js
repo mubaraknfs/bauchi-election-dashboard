@@ -1,3 +1,7 @@
+import ResetPassword
+from "./pages/ResetPassword";
+import ForgotPassword
+from "./pages/ForgotPassword";
 import EvidenceUpload
 from "./pages/EvidenceUpload";
 import ResultImportCenter
@@ -1042,11 +1046,26 @@ return (
 />
 
 <Route
+  path="/forgot-password"
+  element={
+    <ForgotPassword />
+  }
+/>
+
+<Route
+  path="/reset-password/:token"
+  element={
+    <ResetPassword />
+  }
+/>
+
+<Route
   path="/submit-result"
   element={
     <RoleRoute
       allowedRoles={[
         "super_admin",
+        "admin",
         "collation_officer"
       ]}
     >
@@ -1057,17 +1076,18 @@ return (
             {/* SUPER ADMIN */}
 
             <Route
-              path="/"
-              element={
-                <RoleRoute
-                  allowedRoles={[
-                    "super_admin"
-                  ]}
-                >
-                  <SituationRoomDashboard />
-                </RoleRoute>
-              }
-            />
+  path="/"
+  element={
+    <RoleRoute
+      allowedRoles={[
+        "super_admin",
+        "admin"
+      ]}
+    >
+      <SituationRoomDashboard />
+    </RoleRoute>
+  }
+/>
 
             {/* USER MANAGEMENT */}
 

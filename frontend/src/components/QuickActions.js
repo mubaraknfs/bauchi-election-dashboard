@@ -81,6 +81,14 @@ function QuickActions() {
 
   }, []);
 
+  const user =
+  JSON.parse(
+    localStorage.getItem("user")
+  );
+
+const role =
+  user?.role;
+
   /*
   ====================================
   QUICK ACTIONS
@@ -89,48 +97,53 @@ function QuickActions() {
 
   const actions = [
 
-    {
-      icon: "📍",
-      label: "Polling Units",
-      path: "/polling-units-live"
-    },
+  {
+    icon: "📍",
+    label: "Polling Units",
+    path: "/polling-units-live"
+  },
 
-    {
-      icon: "🗳️",
-      label: "Wards",
-      path: "/wards-live"
-    },
+  {
+    icon: "🗳️",
+    label: "Wards",
+    path: "/wards-live"
+  },
 
-    {
-      icon: "🏢",
-      label: "LGAs",
-      path: "/lgas-live"
-    },
+  {
+    icon: "🏢",
+    label: "LGAs",
+    path: "/lgas-live"
+  },
 
-    {
-      icon: "🌍",
-      label: "State",
-      path: "/state-live"
-    },
+  {
+    icon: "🌍",
+    label: "State",
+    path: "/state-live"
+  },
 
-    {
-      icon: "📄",
-      label: "Export PDF",
-      path: "/export-pdf"
-    },
+  ...(role === "super_admin"
+    ? [
+        {
+          icon: "📄",
+          label: "Export PDF",
+          path: "/export-pdf"
+        },
 
-    {
-      icon: "📊",
-      label: "Export Excel",
-      path: "/export-excel"
-    },
+        {
+          icon: "📊",
+          label: "Export Excel",
+          path: "/export-excel"
+        }
+      ]
+    : []),
 
-    {
-      icon: "🔔",
-      label: "Notifications",
-      path: "/notifications"
-    }
-  ];
+  {
+    icon: "🔔",
+    label: "Notifications",
+    path: "/notifications"
+  }
+
+];
 
   return (
 

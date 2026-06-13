@@ -170,6 +170,29 @@ if (role === "observer") {
 
         </button>
 
+        <div
+  style={{
+    marginTop: "15px",
+    textAlign: "center"
+  }}
+>
+
+  <span
+    onClick={() =>
+      window.location.href =
+        "/forgot-password"
+    }
+    style={{
+      color: "#2563eb",
+      cursor: "pointer",
+      fontWeight: "bold"
+    }}
+  >
+    Forgot Password?
+  </span>
+
+</div>
+
       </div>
 
     </div>
