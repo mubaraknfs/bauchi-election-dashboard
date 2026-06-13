@@ -931,13 +931,17 @@ return (
   }}
 >
 {
-  role === "observer"
-    ? null
-    : role === "admin"
-    ? <AdminSidebar />
-    : role === "collation_officer"
-    ? <CollationSidebar />
-    : <SuperAdminSidebar />
+  token && (
+
+    role === "observer"
+      ? null
+      : role === "admin"
+      ? <AdminSidebar />
+      : role === "collation_officer"
+      ? <CollationSidebar />
+      : <SuperAdminSidebar />
+
+  )
 }
   <div
     style={{
@@ -947,8 +951,14 @@ return (
 {
   ["super_admin", "admin"].includes(role) && (
     <>
+      {
+  token && (
+    <>
       <Header />
       <QuickActions />
+    </>
+  )
+}
     </>
   )
 }
