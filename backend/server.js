@@ -3476,6 +3476,38 @@ app.post(
 
 /*
 ====================================
+TEST EMAIL
+====================================
+*/
+app.get(
+  "/api/test-email",
+
+  async (req, res) => {
+
+    try {
+
+      await transporter.verify();
+
+      res.json({
+        success: true,
+        message:
+          "SMTP connection successful"
+      });
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+        success: false,
+        message: error.message
+      });
+    }
+  }
+);
+
+/*
+====================================
 START SERVER
 ====================================
 */
