@@ -105,6 +105,22 @@ const user = JSON.parse(
 const role =
   user?.role || "";
 
+const token =
+  localStorage.getItem(
+    "token"
+  );
+
+const isPublicPage =
+
+  window.location.pathname ===
+    "/forgot-password"
+
+  ||
+
+  window.location.pathname.startsWith(
+    "/reset-password"
+  );
+
 /*
   ====================================
   PARTY COLORS
@@ -880,39 +896,6 @@ AUTH CHECK
 ====================================
 */
 
-const token =
-  localStorage.getItem(
-    "token"
-  );
-
-const currentPath =
-  window.location.pathname;
-
-if (
-
-  !token &&
-
-  currentPath !==
-    "/forgot-password" &&
-
-  !currentPath.startsWith(
-    "/reset-password"
-  )
-
-) {
-
-  return <Login />;
-}
-
-console.log(
-  "USER =",
-  user
-);
-
-console.log(
-  "ROLE =",
-  role
-);
 
 /*
 ====================================
@@ -930,36 +913,45 @@ return (
     minHeight: "100vh"
   }}
 >
+
 {
-  token && (
+  token &&
+  !isPublicPage &&
+
+  (
 
     role === "observer"
       ? null
+
       : role === "admin"
       ? <AdminSidebar />
+
       : role === "collation_officer"
       ? <CollationSidebar />
+
       : <SuperAdminSidebar />
 
   )
 }
+
   <div
     style={{
       flex: 1
     }}
   >
 {
-  ["super_admin", "admin"].includes(role) && (
-    <>
-      {
-  token && (
+  token &&
+  !isPublicPage &&
+
+  ["super_admin", "admin"].includes(
+    role
+  ) && (
+
     <>
       <Header />
       <QuickActions />
     </>
-  )
-}
-    </>
+
   )
 }
 
@@ -1066,20 +1058,6 @@ return (
     >
       <EvidenceUpload />
     </RoleRoute>
-  }
-/>
-
-<Route
-  path="/forgot-password"
-  element={
-    <ForgotPassword />
-  }
-/>
-
-<Route
-  path="/reset-password/:token"
-  element={
-    <ResetPassword />
   }
 />
 
