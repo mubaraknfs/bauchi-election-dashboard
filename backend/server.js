@@ -3262,10 +3262,11 @@ app.post(
       }
 
       const token =
-        crypto.randomBytes(32)
-        .toString("hex");
+        crypto
+          .randomBytes(32)
+          .toString("hex");
 
-      const expires =
+      const expiresAt =
         new Date(
           Date.now() +
           3600000
@@ -3274,8 +3275,7 @@ app.post(
       await pool.query(
 
         `
-        INSERT INTO
-        password_resets
+        INSERT INTO password_resets
         (
           email,
           reset_token,
@@ -3290,7 +3290,7 @@ app.post(
         [
           email,
           token,
-          expires
+          expiresAt
         ]
       );
 
@@ -3310,10 +3310,11 @@ app.post(
 
         html: `
 
-          <h2>Password Reset</h2>
+          <h2>Password Reset Request</h2>
 
           <p>
-            Click the link below:
+            Click the link below
+            to reset your password:
           </p>
 
           <a href="${resetLink}">
@@ -3321,8 +3322,10 @@ app.post(
           </a>
 
           <p>
-            Link expires in 1 hour.
+            This link expires
+            in 1 hour.
           </p>
+
         `
       });
 
@@ -3398,7 +3401,9 @@ app.post(
 
       if (
         new Date() >
-        reset.expires_at
+        new Date(
+          reset.expires_at
+        )
       ) {
 
         return res.status(400).json({
@@ -3406,11 +3411,11 @@ app.post(
           success: false,
 
           message:
-            "Token expired"
+            "Reset link expired"
         });
       }
 
-      const hashed =
+      const hashedPassword =
         await bcrypt.hash(
           password,
           10
@@ -3425,7 +3430,7 @@ app.post(
         `,
 
         [
-          hashed,
+          hashedPassword,
           reset.email
         ]
       );
@@ -3433,10 +3438,10 @@ app.post(
       await pool.query(
 
         `
-        DELETE FROM
-        password_resets
+        DELETE FROM password_resets
         WHERE reset_token = $1
         `,
+
         [token]
       );
 
@@ -3457,7 +3462,7 @@ app.post(
         success: false,
 
         message:
-          "Reset failed"
+          "Password reset failed"
       });
     }
   }
