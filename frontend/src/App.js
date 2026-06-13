@@ -885,7 +885,21 @@ const token =
     "token"
   );
 
-if (!token) {
+const currentPath =
+  window.location.pathname;
+
+if (
+
+  !token &&
+
+  currentPath !==
+    "/forgot-password" &&
+
+  !currentPath.startsWith(
+    "/reset-password"
+  )
+
+) {
 
   return <Login />;
 }
@@ -1086,6 +1100,20 @@ return (
     >
       <SituationRoomDashboard />
     </RoleRoute>
+  }
+/>
+
+<Route
+  path="/forgot-password"
+  element={
+    <ForgotPassword />
+  }
+/>
+
+<Route
+  path="/reset-password/:token"
+  element={
+    <ResetPassword />
   }
 />
 
