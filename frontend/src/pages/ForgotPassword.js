@@ -28,8 +28,18 @@ function ForgotPassword() {
           );
 
         alert(
-          response.data.message
-        );
+  response.data.message
+);
+
+console.log(
+  "RESET LINK:",
+  response.data.resetLink
+);
+
+window.open(
+  response.data.resetLink,
+  "_blank"
+);
 
       } catch (error) {
 

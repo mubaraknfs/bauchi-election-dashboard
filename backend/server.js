@@ -3300,48 +3300,19 @@ app.post(
         ]
       );
 
-      const resetLink =
-
-        `${process.env.FRONTEND_URL}/reset-password/${token}`;
-
-      await transporter.sendMail({
-
-        from:
-          process.env.EMAIL_USER,
-
-        to: email,
-
-        subject:
-          "Election Dashboard Password Reset",
-
-        html: `
-
-          <h2>Password Reset Request</h2>
-
-          <p>
-            Click the link below
-            to reset your password:
-          </p>
-
-          <a href="${resetLink}">
-            Reset Password
-          </a>
-
-          <p>
-            This link expires
-            in 1 hour.
-          </p>
-
-        `
-      });
 
       res.json({
 
-        success: true,
+  success: true,
 
-        message:
-          "Password reset email sent"
-      });
+  message:
+    "Password reset request created",
+
+  resetLink:
+
+    `${process.env.FRONTEND_URL}/reset-password/${token}`
+
+});
 
     } catch (error) {
 
