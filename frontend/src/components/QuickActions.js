@@ -141,7 +141,26 @@ const role =
     icon: "🔔",
     label: "Notifications",
     path: "/notifications"
-  }
+  },
+
+  {
+  label:
+    "Target Results",
+
+  icon:
+    "🎯",
+
+  path:
+    "/target-results",
+
+  roles: [
+
+    "super_admin",
+    "admin",
+    "observer"
+
+  ]
+},
 
 ];
 

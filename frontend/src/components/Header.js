@@ -2,16 +2,22 @@ import React from "react";
 
 function Header() {
 
+  const user =
+    JSON.parse(
+      localStorage.getItem("user")
+    );
+
   const role =
-    localStorage.getItem("role");
+    user?.role || "";
 
   const logout = () => {
 
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    localStorage.removeItem("user");
+    localStorage.clear();
 
-    window.location.reload();
+    sessionStorage.clear();
+
+    window.location.href =
+      "/login";
   };
 
   return (

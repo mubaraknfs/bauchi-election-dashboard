@@ -51,7 +51,11 @@ function StateDashboard() {
   if (!summary) {
 
     return (
-      <div style={{ padding: "20px" }}>
+      <div
+        style={{
+          padding: "20px"
+        }}
+      >
         Loading...
       </div>
     );
@@ -59,22 +63,74 @@ function StateDashboard() {
 
   const turnout =
 
-    summary.total_registered_voters > 0
+    Number(
+      summary.total_registered_voters
+    ) > 0
 
       ?
 
       (
         (
-          summary.total_accredited_voters /
-          summary.total_registered_voters
+          Number(
+            summary.total_accredited_voters
+          ) /
+
+          Number(
+            summary.total_registered_voters
+          )
+
         ) * 100
       ).toFixed(2)
 
       : 0;
 
+  const rejectedVotes =
+
+    Number(
+      summary.total_votes_cast || 0
+    )
+
+    -
+
+    Number(
+      summary.total_valid_votes || 0
+    );
+
+  const partyRanking = [
+
+    ["AAC", summary.aac],
+    ["ADC", summary.adc],
+    ["ADP", summary.adp],
+    ["APC", summary.apc],
+    ["APGA", summary.apga],
+    ["APM", summary.apm],
+    ["APP", summary.app],
+    ["BP", summary.bp],
+    ["LP", summary.lp],
+    ["NDC", summary.ndc],
+    ["NNPP", summary.nnpp],
+    ["NRM", summary.nrm],
+    ["PDP", summary.pdp],
+    ["PRP", summary.prp],
+    ["SDP", summary.sdp],
+    ["YPP", summary.ypp],
+    ["ZLP", summary.zlp]
+
+  ]
+
+    .sort(
+      (a, b) =>
+        Number(b[1]) -
+        Number(a[1])
+    );
+
   return (
 
-    <div style={{ padding: "20px" }}>
+    <div
+      style={{
+        padding: "20px"
+      }}
+    >
 
       <div
         style={{
@@ -83,7 +139,8 @@ function StateDashboard() {
             "space-between",
           alignItems:
             "center",
-          marginBottom: "20px"
+          marginBottom:
+            "25px"
         }}
       >
 
@@ -105,43 +162,67 @@ function StateDashboard() {
       <div style={summaryGrid}>
 
         <Card
-          title="Registered"
+          title="Registered Voters"
           value={
-            summary.total_registered_voters
+            Number(
+              summary.total_registered_voters
+            ).toLocaleString()
           }
         />
 
         <Card
-          title="Accredited"
+          title="Accredited Voters"
           value={
-            summary.total_accredited_voters
+            Number(
+              summary.total_accredited_voters
+            ).toLocaleString()
           }
         />
 
         <Card
           title="Votes Cast"
           value={
-            summary.total_votes_cast
+            Number(
+              summary.total_votes_cast
+            ).toLocaleString()
           }
         />
 
         <Card
           title="Valid Votes"
           value={
-            summary.total_valid_votes
+            Number(
+              summary.total_valid_votes
+            ).toLocaleString()
           }
         />
 
         <Card
-          title="Polling Units"
+          title="Rejected Votes"
           value={
-            summary.polling_units_reported
+            rejectedVotes.toLocaleString()
           }
         />
 
         <Card
-          title="Turnout %"
+          title="Polling Units Reported"
+          value={
+            Number(
+              summary.polling_units_reported
+            ).toLocaleString()
+          }
+        />
+
+        <Card
+          title="Turnout Rate"
           value={`${turnout}%`}
+        />
+
+        <Card
+          title="Leading Party"
+          value={
+            summary.leading_party
+          }
         />
 
       </div>
@@ -150,14 +231,22 @@ function StateDashboard() {
 
       <div style={winnerCard}>
 
-        <h2>
+        <h2
+          style={{
+            marginBottom:
+              "15px"
+          }}
+        >
           STATE LEADING PARTY
         </h2>
 
         <h1
           style={{
-            color: "#16a34a",
-            fontSize: "48px"
+            color:
+              "#16a34a",
+            fontSize:
+              "60px",
+            margin: 0
           }}
         >
           {
@@ -167,89 +256,123 @@ function StateDashboard() {
 
       </div>
 
-      {/* PARTY TABLE */}
+      {/* LEADERBOARD */}
 
-      <div style={tableContainer}>
+      <div
+        style={
+          leaderboardContainer
+        }
+      >
 
-        <h2>
-          Party Ranking
+        <h2
+          style={{
+            marginBottom:
+              "25px"
+          }}
+        >
+          Live Party Leaderboard
         </h2>
 
-        <table style={tableStyle}>
+        {
 
-          <thead>
+          partyRanking.map(
 
-            <tr>
+            ([party, votes]) => {
 
-              <th style={headerStyle}>
-                Party
-              </th>
+              const percentage =
 
-              <th style={headerStyle}>
-                Votes
-              </th>
+                Number(
+                  summary.total_valid_votes
+                ) > 0
 
-            </tr>
+                  ?
 
-          </thead>
+                  (
+                    (
+                      Number(votes) /
 
-          <tbody>
+                      Number(
+                        summary.total_valid_votes
+                      )
 
-            {
+                    ) * 100
+                  ).toFixed(2)
 
-              [
+                  : 0;
 
-                ["AAC", summary.aac],
-                ["ADC", summary.adc],
-                ["ADP", summary.adp],
-                ["APC", summary.apc],
-                ["APGA", summary.apga],
-                ["APM", summary.apm],
-                ["APP", summary.app],
-                ["BP", summary.bp],
-                ["LP", summary.lp],
-                ["NDC", summary.ndc],
-                ["NNPP", summary.nnpp],
-                ["NRM", summary.nrm],
-                ["PDP", summary.pdp],
-                ["PRP", summary.prp],
-                ["SDP", summary.sdp],
-                ["YPP", summary.ypp],
-                ["ZLP", summary.zlp]
+              return (
 
-              ]
+                <div
+                  key={party}
+                  style={{
+                    marginBottom:
+                      "18px"
+                  }}
+                >
 
-                .sort(
-                  (a, b) =>
-                    Number(b[1]) -
-                    Number(a[1])
-                )
+                  <div
+                    style={{
+                      display:
+                        "flex",
+                      justifyContent:
+                        "space-between",
+                      marginBottom:
+                        "6px"
+                    }}
+                  >
 
-                .map(
-                  ([party, votes]) => (
+                    <strong>
+                      {party}
+                    </strong>
 
-                    <tr key={party}>
+                    <strong>
 
-                      <td
-                        style={cellStyle}
-                      >
-                        {party}
-                      </td>
+                      {
+                        Number(votes)
+                          .toLocaleString()
+                      }
 
-                      <td
-                        style={cellStyle}
-                      >
-                        {votes}
-                      </td>
+                      {" votes • "}
 
-                    </tr>
-                  )
-                )
+                      {percentage}%
+
+                    </strong>
+
+                  </div>
+
+                  <div
+                    style={{
+                      height:
+                        "14px",
+                      background:
+                        "#e5e7eb",
+                      borderRadius:
+                        "20px",
+                      overflow:
+                        "hidden"
+                    }}
+                  >
+
+                    <div
+                      style={{
+                        width:
+                          `${percentage}%`,
+                        height:
+                          "100%",
+                        background:
+                          "#16a34a",
+                        transition:
+                          "0.5s"
+                      }}
+                    />
+
+                  </div>
+
+                </div>
+              );
             }
-
-          </tbody>
-
-        </table>
+          )
+        }
 
       </div>
 
@@ -268,9 +391,13 @@ function Card({
 
     <div style={cardStyle}>
 
-      <h4>{title}</h4>
+      <h4>
+        {title}
+      </h4>
 
-      <h2>{value}</h2>
+      <h2>
+        {value}
+      </h2>
 
     </div>
   );
@@ -285,76 +412,62 @@ const summaryGrid = {
 
   gap: "15px",
 
-  marginBottom: "25px"
+  marginBottom:
+    "25px"
 };
 
 const cardStyle = {
 
-  backgroundColor: "#fff",
+  backgroundColor:
+    "#ffffff",
 
   padding: "20px",
 
-  borderRadius: "10px",
+  borderRadius:
+    "12px",
 
-  textAlign: "center",
+  textAlign:
+    "center",
 
   boxShadow:
-    "0 2px 8px rgba(0,0,0,0.1)"
+    "0 2px 10px rgba(0,0,0,0.08)"
 };
 
 const winnerCard = {
 
-  backgroundColor: "#fff",
+  backgroundColor:
+    "#ffffff",
+
+  padding: "35px",
+
+  borderRadius:
+    "12px",
+
+  textAlign:
+    "center",
+
+  marginBottom:
+    "25px",
+
+  boxShadow:
+    "0 2px 10px rgba(0,0,0,0.08)"
+};
+
+const leaderboardContainer = {
+
+  backgroundColor:
+    "#ffffff",
 
   padding: "30px",
 
-  borderRadius: "10px",
+  borderRadius:
+    "12px",
 
-  textAlign: "center",
-
-  marginBottom: "25px",
-
-  boxShadow:
-    "0 2px 8px rgba(0,0,0,0.1)"
-};
-
-const tableContainer = {
-
-  backgroundColor: "#fff",
-
-  padding: "20px",
-
-  borderRadius: "10px",
+  marginBottom:
+    "25px",
 
   boxShadow:
-    "0 2px 8px rgba(0,0,0,0.1)"
-};
-
-const tableStyle = {
-
-  width: "100%",
-
-  borderCollapse: "collapse"
-};
-
-const headerStyle = {
-
-  backgroundColor: "#0f172a",
-
-  color: "#fff",
-
-  padding: "12px",
-
-  border: "1px solid #334155"
-};
-
-const cellStyle = {
-
-  padding: "10px",
-
-  border: "1px solid #e5e7eb",
-
-  textAlign: "center"
+    "0 2px 10px rgba(0,0,0,0.08)"
 };
 
 export default StateDashboard;

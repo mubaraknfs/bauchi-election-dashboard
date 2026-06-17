@@ -1389,7 +1389,132 @@ app.put(
     try {
 
       const id =
-        req.params.id;
+  req.params.id;
+
+const {
+  target
+} = req.body;
+
+const resultData =
+  await pool.query(
+
+    `
+    SELECT *
+    FROM results
+    WHERE id = $1
+    `,
+
+    [id]
+  );
+
+const result =
+  resultData.rows[0];
+
+  if (target) {
+
+  const existing =
+    await pool.query(
+
+      `
+      SELECT id
+      FROM target_results
+      WHERE original_result_id = $1
+      `,
+
+      [id]
+    );
+
+  if (
+    existing.rows.length === 0
+  ) {
+
+    await pool.query(
+
+      `
+      INSERT INTO target_results (
+
+        original_result_id,
+
+        ward,
+        polling_unit,
+        party_agent,
+        phone_number,
+        status,
+
+        registered_card,
+        accredited_card,
+
+        aac,
+        adc,
+        adp,
+        apc,
+        apga,
+        apm,
+        app,
+        bp,
+        lp,
+        ndc,
+        nnpp,
+        nrm,
+        pdp,
+        prp,
+        sdp,
+        ypp,
+        zlp
+
+      )
+
+      VALUES (
+
+        $1,$2,$3,$4,$5,$6,
+
+        $7,$8,
+
+        $9,$10,$11,$12,$13,
+        $14,$15,$16,$17,$18,
+        $19,$20,$21,$22,$23,
+        $24,$25
+
+      )
+      `,
+
+      [
+
+        result.id,
+
+        result.ward,
+        result.polling_unit,
+        result.party_agent,
+        result.phone_number,
+        "approved",
+
+        result.registered_card,
+        result.accredited_card,
+
+        result.aac || 0,
+        result.adc || 0,
+        result.adp || 0,
+        result.apc || 0,
+        result.apga || 0,
+        result.apm || 0,
+        result.app || 0,
+        result.bp || 0,
+        result.lp || 0,
+        result.ndc || 0,
+        result.nnpp || 0,
+        result.nrm || 0,
+        result.pdp || 0,
+        result.prp || 0,
+        result.sdp || 0,
+        result.ypp || 0,
+        result.zlp || 0
+
+      ]
+    );
+
+  }
+
+}
 
       await pool.query(
 
@@ -3474,6 +3599,62 @@ app.get(
         message: error.message
       });
     }
+  }
+);
+
+
+/*
+====================================
+TARGET RESULTS
+====================================
+*/
+app.get(
+
+  "/api/target-results",
+
+  auth,
+
+  authorizeRoles(
+
+    "super_admin",
+    "admin",
+    "observer"
+
+  ),
+
+  async (req, res) => {
+
+    try {
+
+      const results =
+        await pool.query(
+
+          `
+          SELECT *
+          FROM target_results
+          ORDER BY id DESC
+          `
+        );
+
+      res.json(
+        results.rows
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          "Failed to load target results"
+
+      });
+
+    }
+
   }
 );
 

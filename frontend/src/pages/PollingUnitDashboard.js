@@ -344,7 +344,7 @@ function PollingUnitDashboard() {
 
         <input
           type="text"
-          placeholder="Search Polling Unit..."
+          placeholder="Search LGA..."
           value={search}
           onChange={(e) =>
             setSearch(

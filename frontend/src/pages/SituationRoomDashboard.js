@@ -66,6 +66,9 @@ function SituationRoomDashboard() {
   const [summary, setSummary] =
   useState({});
 
+  const [lgaSummaries, setLgaSummaries] =
+  useState([]);
+
 const [partyResults, setPartyResults] =
   useState({});
 
@@ -218,20 +221,37 @@ const partyLeaderboard =
   const topFiveTable =
   partyLeaderboard.slice(0, 5);
 
+const currentDateTime =
+  new Date().toLocaleString();
+
   const tickerText = tickerData
 
-  .map((lga) =>
+  .map((lga) => {
 
-    `${lga.lga_name}
-     | APC ${lga.apc}
-     | PDP ${lga.pdp}
-     | NNPP ${lga.nnpp}
-     | LP ${lga.lp}
-     | APM ${lga.apm}
-     | NDC ${lga.ndc}
-     |`
+    const partyResultsText =
 
-  )
+      Object.keys(partyConfig)
+
+        .filter(
+          (partyCode) =>
+            Number(
+              lga[partyCode] || 0
+            ) > 0
+        )
+
+        .map(
+          (partyCode) =>
+
+            `${partyCode.toUpperCase()} ${
+              lga[partyCode]
+            }`
+        )
+
+        .join(" | ");
+
+    return `${lga.lga_name} | ${partyResultsText}`;
+
+  })
 
   .join("    ●    ");
 
@@ -285,19 +305,39 @@ tickerData.forEach((lga) => {
 
 });
 
+const TOTAL_BAUCHI_LGAS = 20;
+
+/*
+Every item returned by
+/api/lga-ticker
+represents one reporting LGA
+*/
+const lgasInProgress =
+  tickerData.length;
+
+const uncollatedLGAs =
+  TOTAL_BAUCHI_LGAS -
+  lgasInProgress;
+
   return (
 
   <div style={containerStyle}>
 
     <div style={tickerWrapper}>
 
-      <div style={tickerContent}>
+  <div style={tickerDate}>
+    {currentDateTime}
+  </div>
 
-        {tickerText}
+  <div style={tickerScrollArea}>
 
-      </div>
-
+    <div style={tickerContent}>
+      {tickerText}
     </div>
+
+  </div>
+
+</div>
 
       <div style={headerStyle}>
 
@@ -458,7 +498,7 @@ tickerData.forEach((lga) => {
 
       <div style={contentStyle}>
 
-        <div style={leftStyle}>
+  <div style={fullWidthStyle}>
 
   <h2>
   Election Scores
@@ -468,7 +508,7 @@ tickerData.forEach((lga) => {
   style={{
     display: "grid",
     gridTemplateColumns:
-      "repeat(3, 1fr)",
+  "repeat(auto-fit,minmax(220px,1fr))",
     gap: "10px",
     marginBottom: "25px"
   }}
@@ -476,34 +516,37 @@ tickerData.forEach((lga) => {
 
   <div
   style={{
-    background: "#fafafa",
-    border: "1px solid #ddd",
+    background: "#dbeafe",
+    border: "1px solid #3b82f6",
+    color: "#1e3a8a",
     borderRadius: "10px",
     padding: "15px",
     textAlign: "center"
   }}
 >
     <h3>{summary.registered || 0}</h3>
-    <p>Registered</p>
+    <p>Registered Voters</p>
   </div>
 
  <div
   style={{
-    background: "#fafafa",
-    border: "1px solid #ddd",
+    background: "#dcfce7",
+    border: "1px solid #16a34a",
+    color: "#166534",
     borderRadius: "10px",
     padding: "15px",
     textAlign: "center"
   }}
 >
     <h3>{summary.accredited || 0}</h3>
-    <p>Accredited</p>
+    <p>Accredited Voters</p>
   </div>
 
   <div
   style={{
-    background: "#fafafa",
-    border: "1px solid #ddd",
+    background: "#fee2e2",
+border: "1px solid #ef4444",
+color: "#991b1b",
     borderRadius: "10px",
     padding: "15px",
     textAlign: "center"
@@ -515,8 +558,9 @@ tickerData.forEach((lga) => {
 
   <div
   style={{
-    background: "#fafafa",
-    border: "1px solid #ddd",
+    background: "#f3f4f6",
+border: "1px solid #6b7280",
+color: "#374151",
     borderRadius: "10px",
     padding: "15px",
     textAlign: "center"
@@ -528,8 +572,9 @@ tickerData.forEach((lga) => {
 
   <div
   style={{
-    background: "#fafafa",
-    border: "1px solid #ddd",
+    background: "#fee2e2",
+border: "1px solid #ef4444",
+color: "#991b1b",
     borderRadius: "10px",
     padding: "15px",
     textAlign: "center"
@@ -541,8 +586,9 @@ tickerData.forEach((lga) => {
 
   <div
   style={{
-    background: "#fafafa",
-    border: "1px solid #ddd",
+    background: "#f3f4f6",
+border: "1px solid #6b7280",
+color: "#374151",
     borderRadius: "10px",
     padding: "15px",
     textAlign: "center"
@@ -555,6 +601,62 @@ tickerData.forEach((lga) => {
 </div>
 
 <div>
+
+<div
+  style={{
+    marginBottom: "35px"
+  }}
+>
+
+  <h3>
+    LGA Progress
+  </h3>
+
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns:
+        "repeat(3,1fr)",
+      gap: "15px"
+    }}
+  >
+
+    <div
+  style={{
+    ...statCard,
+    background: "#e0f2fe",
+    border: "1px solid #0284c7"
+  }}
+>
+  <h2>20</h2>
+  <p>Total LGAs</p>
+</div>
+
+    <div
+  style={{
+    ...statCard,
+    background: "#fef3c7",
+    border: "1px solid #f59e0b"
+  }}
+>
+  <h2>{lgasInProgress}</h2>
+  <p>LGAs In Progress</p>
+</div>
+
+    <div
+  style={{
+    ...statCard,
+    background: "#fee2e2",
+    border: "1px solid #ef4444"
+  }}
+>
+  <h2>{uncollatedLGAs}</h2>
+  <p>Uncollated LGAs</p>
+</div>
+
+  </div>
+
+</div>
 
   <h3
     style={{
@@ -661,161 +763,6 @@ tickerData.forEach((lga) => {
 
 </div>
 
-        <div style={rightStyle}>
-
-  <h2>
-    Party Scoreboard
-  </h2>
-
-  {partyLeaderboard.map(
-    (party) => (
-
-      <div
-        key={party.code}
-        style={{
-          display: "grid",
-          gridTemplateColumns:
-            "60px 1fr 80px",
-          alignItems:
-            "center",
-          padding:
-            "12px 0",
-          borderBottom:
-            "1px solid #eee"
-        }}
-      >
-
-        <img
-          src={party.logo}
-          alt={party.name}
-          style={{
-            width: "40px",
-            height: "40px",
-            objectFit:
-              "contain"
-          }}
-        />
-
-        <div>
-
-          <strong
-          style={{
-          color:
-          partyColors[
-          party.code
-          ] || "#333"
-     }}
-    >
-         {party.name}
-         </strong>
-
-          <div>
-            {party.votes}
-            {" "}
-            Votes
-          </div>
-
-        </div>
-
-        <div
-          style={{
-            textAlign:
-              "center",
-            fontWeight:
-              "bold"
-          }}
-        >
-          {party.lgaLeadCount}
-          <br />
-          LGAs
-        </div>
-
-      </div>
-
-    )
-  )}
-
-  <div
-    style={{
-      marginTop: "25px",
-      border:
-        "1px solid #eee",
-      borderRadius:
-        "10px",
-      overflow:
-        "hidden"
-    }}
-  >
-
-    <div
-      style={{
-        background:
-          "#ff6b6b",
-        color:
-          "#fff",
-        textAlign:
-          "center",
-        padding:
-          "12px",
-        fontWeight:
-          "bold"
-      }}
-    >
-      TOTAL LGAs
-      {" "}
-      {totalLGAs}
-    </div>
-
-    <div
-      style={{
-        display:
-          "grid",
-        gridTemplateColumns:
-          "1fr 1fr"
-      }}
-    >
-
-      <div
-        style={{
-          textAlign:
-            "center",
-          padding:
-            "20px",
-          borderRight:
-            "1px solid #eee"
-        }}
-      >
-        <strong>
-          COLLATED
-        </strong>
-
-        <div>
-          {collatedLGAs}
-        </div>
-      </div>
-
-      <div
-        style={{
-          textAlign:
-            "center",
-          padding:
-            "20px"
-        }}
-      >
-        <strong>
-          PENDING
-        </strong>
-
-        <div>
-          {pendingLGAs}
-        </div>
-      </div>
-
-    </div>
-
-  </div>
-
-</div>
 
       </div>
 
@@ -850,6 +797,19 @@ const liveStyle = {
   fontWeight: "bold"
 };
 
+const fullWidthStyle = {
+
+  background: "#fff",
+
+  border: "1px solid #ddd",
+
+  borderRadius: "12px",
+
+  padding: "25px",
+
+  width: "100%"
+};
+
 const leaderBannerStyle = {
 
   display: "flex",
@@ -875,25 +835,7 @@ const leaderBannerStyle = {
 };
 
 const contentStyle = {
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr",
-  gap: "20px"
-};
-
-const leftStyle = {
-  background: "#fff",
-  border: "1px solid #ddd",
-  borderRadius: "12px",
-  minHeight: "500px",
-  padding: "20px"
-};
-
-const rightStyle = {
-  background: "#fff",
-  border: "1px solid #ddd",
-  borderRadius: "12px",
-  minHeight: "500px",
-  padding: "20px"
+  display: "block"
 };
 
 const tickerWrapper = {
@@ -921,6 +863,40 @@ const tickerWrapper = {
   alignItems: "center"
 };
 
+const tickerDate = {
+
+  minWidth: "220px",
+
+  height: "100%",
+
+  display: "flex",
+
+  alignItems: "center",
+
+  justifyContent: "center",
+
+  background: "#c00000",
+
+  color: "#ffffff",
+
+  fontWeight: "bold",
+
+  borderRight: "2px solid #ffffff",
+
+  zIndex: 10000
+};
+
+const tickerScrollArea = {
+
+  flex: 1,
+
+  overflow: "hidden",
+
+  display: "flex",
+
+  alignItems: "center"
+};
+
 const tickerContent = {
 
   whiteSpace: "nowrap",
@@ -939,15 +915,18 @@ const tickerContent = {
 
 const statCard = {
 
-  background: "#fafafa",
+  background: "#ffffff",
 
-  border: "1px solid #ddd",
+  border: "1px solid #e5e7eb",
 
-  borderRadius: "10px",
+  borderRadius: "12px",
 
-  padding: "15px",
+  padding: "25px",
 
-  textAlign: "center"
+  textAlign: "center",
+
+  boxShadow:
+    "0 2px 8px rgba(0,0,0,0.08)"
 };
 
 export default SituationRoomDashboard;

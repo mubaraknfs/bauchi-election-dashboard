@@ -10,10 +10,6 @@ function CollationSidebar() {
       path: "/submit-result"
     },
 
-    {
-      name: "Result Import Center",
-      path: "/import-results"
-    },
 
     {
       name: "Evidence Upload",

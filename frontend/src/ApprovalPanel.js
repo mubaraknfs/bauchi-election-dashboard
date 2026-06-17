@@ -43,6 +43,11 @@ function ApprovalPanel() {
     setSearch
   ] = useState("");
 
+  const [
+  targetSelections,
+  setTargetSelections
+] = useState({});
+
   /*
   |--------------------------------------------------------------------------
   | TOKEN
@@ -140,8 +145,11 @@ function ApprovalPanel() {
   |--------------------------------------------------------------------------
   */
 
-  const approveResult =
-    async (id) => {
+ const approveResult =
+  async (
+    id,
+    target
+  ) => {
 
       const confirmed =
         window.confirm(
@@ -155,11 +163,13 @@ function ApprovalPanel() {
 
         await axios.put(
 
-          `${API_URL}/api/approve-result/${id}`,
+  `${API_URL}/api/approve-result/${id}`,
 
-          {},
+  {
+    target
+  },
 
-          {
+  {
             headers: {
               authorization:
                 `Bearer ${token}`
@@ -364,11 +374,15 @@ function ApprovalPanel() {
               </th>
 
               <th style={thStyle}>
-                Status
-              </th>
+               Status
+                </th>
 
               <th style={thStyle}>
-                Action
+               Target
+                </th>
+
+              <th style={thStyle}>
+               Action
               </th>
 
             </tr>
@@ -388,9 +402,9 @@ function ApprovalPanel() {
                   <tr>
 
                     <td
-                      colSpan="7"
-                      style={emptyStyle}
-                    >
+                      colSpan="8"
+                    style={emptyStyle}
+                   >
 
                       No pending results found
 
@@ -466,6 +480,30 @@ function ApprovalPanel() {
 
                       <td style={tdStyle}>
 
+                        <input
+                          type="checkbox"
+                          checked={
+                            targetSelections[
+                              result.id
+                            ] || false
+                          }
+                          onChange={(e) =>
+
+                            setTargetSelections(
+                              (prev) => ({
+                                ...prev,
+                                [result.id]:
+                                  e.target.checked
+                              })
+                            )
+
+                          }
+                        />
+
+                      </td>
+
+                      <td style={tdStyle}>
+
                         <button
 
                           style={
@@ -473,8 +511,11 @@ function ApprovalPanel() {
                           }
 
                           onClick={() =>
-                            approveResult(
-                              result.id
+                          approveResult(
+                          result.id,
+                          targetSelections[
+                          result.id
+               ]
                             )
                           }
                         >

@@ -20,6 +20,28 @@ function WardDashboard() {
   const [currentTime, setCurrentTime] =
     useState(new Date());
 
+  const parties = [
+
+    "AAC",
+    "ADC",
+    "ADP",
+    "APC",
+    "APGA",
+    "APM",
+    "APP",
+    "BP",
+    "LP",
+    "NDC",
+    "NNPP",
+    "NRM",
+    "PDP",
+    "PRP",
+    "SDP",
+    "YPP",
+    "ZLP"
+
+  ];
+
   const fetchWards =
     async () => {
 
@@ -36,7 +58,10 @@ function WardDashboard() {
 
       } catch (error) {
 
-        console.error(error);
+        console.error(
+          "Ward fetch error:",
+          error
+        );
       }
     };
 
@@ -51,7 +76,9 @@ function WardDashboard() {
       );
 
     return () =>
-      clearInterval(interval);
+      clearInterval(
+        interval
+      );
 
   }, []);
 
@@ -67,7 +94,9 @@ function WardDashboard() {
       }, 1000);
 
     return () =>
-      clearInterval(timer);
+      clearInterval(
+        timer
+      );
 
   }, []);
 
@@ -122,6 +151,7 @@ function WardDashboard() {
 
       ? wards[0]
           .leading_party || "-"
+
       : "-";
 
   return (
@@ -233,21 +263,22 @@ function WardDashboard() {
                 Ward
               </th>
 
-              <th style={th}>
-                APC
-              </th>
+              {
 
-              <th style={th}>
-                PDP
-              </th>
+                parties.map(
+                  (party) => (
 
-              <th style={th}>
-                NNPP
-              </th>
+                    <th
+                      key={party}
+                      style={th}
+                    >
+                      {party}
+                    </th>
 
-              <th style={th}>
-                LP
-              </th>
+                  )
+                )
+
+              }
 
               <th style={th}>
                 Registered
@@ -292,21 +323,28 @@ function WardDashboard() {
                       {row.ward}
                     </td>
 
-                    <td style={td}>
-                      {row.apc}
-                    </td>
+                    {
 
-                    <td style={td}>
-                      {row.pdp}
-                    </td>
+                      parties.map(
+                        (party) => (
 
-                    <td style={td}>
-                      {row.nnpp}
-                    </td>
+                          <td
+                            key={party}
+                            style={td}
+                          >
+                            {
 
-                    <td style={td}>
-                      {row.lp}
-                    </td>
+                              row[
+                                party.toLowerCase()
+                              ] || 0
+
+                            }
+                          </td>
+
+                        )
+                      )
+
+                    }
 
                     <td style={td}>
                       {

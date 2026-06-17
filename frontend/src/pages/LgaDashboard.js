@@ -20,6 +20,28 @@ function LgaDashboard() {
   const [currentTime, setCurrentTime] =
     useState(new Date());
 
+  const parties = [
+
+    "AAC",
+    "ADC",
+    "ADP",
+    "APC",
+    "APGA",
+    "APM",
+    "APP",
+    "BP",
+    "LP",
+    "NDC",
+    "NNPP",
+    "NRM",
+    "PDP",
+    "PRP",
+    "SDP",
+    "YPP",
+    "ZLP"
+
+  ];
+
   const fetchLgas =
     async () => {
 
@@ -36,7 +58,10 @@ function LgaDashboard() {
 
       } catch (error) {
 
-        console.error(error);
+        console.error(
+          "LGA fetch error:",
+          error
+        );
       }
     };
 
@@ -51,7 +76,9 @@ function LgaDashboard() {
       );
 
     return () =>
-      clearInterval(interval);
+      clearInterval(
+        interval
+      );
 
   }, []);
 
@@ -67,7 +94,9 @@ function LgaDashboard() {
       }, 1000);
 
     return () =>
-      clearInterval(timer);
+      clearInterval(
+        timer
+      );
 
   }, []);
 
@@ -150,6 +179,7 @@ function LgaDashboard() {
 
       ? lgas[0]
           .leading_party || "-"
+
       : "-";
 
   return (
@@ -186,33 +216,57 @@ function LgaDashboard() {
       <div style={summaryGrid}>
 
         <div style={summaryCard}>
-          <h3>Total LGAs</h3>
-          <h2>{lgas.length}</h2>
+          <h3>
+            Total LGAs
+          </h3>
+          <h2>
+            {lgas.length}
+          </h2>
         </div>
 
         <div style={summaryCard}>
-          <h3>Votes Cast</h3>
-          <h2>{totalVotesCast}</h2>
+          <h3>
+            Votes Cast
+          </h3>
+          <h2>
+            {totalVotesCast}
+          </h2>
         </div>
 
         <div style={summaryCard}>
-          <h3>Valid Votes</h3>
-          <h2>{totalValidVotes}</h2>
+          <h3>
+            Valid Votes
+          </h3>
+          <h2>
+            {totalValidVotes}
+          </h2>
         </div>
 
         <div style={summaryCard}>
-          <h3>Registered</h3>
-          <h2>{totalRegistered}</h2>
+          <h3>
+            Registered
+          </h3>
+          <h2>
+            {totalRegistered}
+          </h2>
         </div>
 
         <div style={summaryCard}>
-          <h3>Accredited</h3>
-          <h2>{totalAccredited}</h2>
+          <h3>
+            Accredited
+          </h3>
+          <h2>
+            {totalAccredited}
+          </h2>
         </div>
 
         <div style={summaryCard}>
-          <h3>Leading Party</h3>
-          <h2>{leadingParty}</h2>
+          <h3>
+            Leading Party
+          </h3>
+          <h2>
+            {leadingParty}
+          </h2>
         </div>
 
       </div>
@@ -253,21 +307,22 @@ function LgaDashboard() {
                 LGA
               </th>
 
-              <th style={th}>
-                APC
-              </th>
+              {
 
-              <th style={th}>
-                PDP
-              </th>
+                parties.map(
+                  (party) => (
 
-              <th style={th}>
-                NNPP
-              </th>
+                    <th
+                      key={party}
+                      style={th}
+                    >
+                      {party}
+                    </th>
 
-              <th style={th}>
-                LP
-              </th>
+                  )
+                )
+
+              }
 
               <th style={th}>
                 Registered
@@ -316,21 +371,26 @@ function LgaDashboard() {
                       }
                     </td>
 
-                    <td style={td}>
-                      {row.apc}
-                    </td>
+                    {
 
-                    <td style={td}>
-                      {row.pdp}
-                    </td>
+                      parties.map(
+                        (party) => (
 
-                    <td style={td}>
-                      {row.nnpp}
-                    </td>
+                          <td
+                            key={party}
+                            style={td}
+                          >
+                            {
+                              row[
+                                party.toLowerCase()
+                              ] || 0
+                            }
+                          </td>
 
-                    <td style={td}>
-                      {row.lp}
-                    </td>
+                        )
+                      )
+
+                    }
 
                     <td style={td}>
                       {
@@ -390,6 +450,7 @@ function LgaDashboard() {
                   </tr>
                 )
               )
+
             }
 
           </tbody>
@@ -399,6 +460,7 @@ function LgaDashboard() {
       </div>
 
     </div>
+
   );
 }
 
@@ -455,7 +517,9 @@ const theadStyle = {
 const th = {
   padding: "12px",
   border:
-    "1px solid #334155"
+    "1px solid #334155",
+  whiteSpace:
+    "nowrap"
 };
 
 const td = {

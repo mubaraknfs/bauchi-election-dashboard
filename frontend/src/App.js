@@ -1,3 +1,5 @@
+import TargetResultsDashboard
+from "./pages/TargetResultsDashboard";
 import ResetPassword
 from "./pages/ResetPassword";
 import ForgotPassword
@@ -110,10 +112,19 @@ const token =
     "token"
   );
 
+const publicPages = [
+
+  "/login",
+
+  "/forgot-password"
+
+];
+
 const isPublicPage =
 
-  window.location.pathname ===
-    "/forgot-password"
+  publicPages.includes(
+    window.location.pathname
+  )
 
   ||
 
@@ -896,7 +907,20 @@ AUTH CHECK
 ====================================
 */
 
+console.log(
+  "ROLE =",
+  role
+);
 
+console.log(
+  "PATH =",
+  window.location.pathname
+);
+
+console.log(
+  "TOKEN =",
+  localStorage.getItem("token")
+);
 /*
 ====================================
 APP ROUTES
@@ -915,13 +939,12 @@ return (
 >
 
 {
-  token &&
   !isPublicPage &&
 
   (
 
     role === "observer"
-      ? null
+      ? <ObserverSidebar />
 
       : role === "admin"
       ? <AdminSidebar />
@@ -940,18 +963,23 @@ return (
     }}
   >
 {
-  token &&
   !isPublicPage &&
 
-  ["super_admin", "admin"].includes(
-    role
-  ) && (
+  token && (
 
     <>
       <Header />
-      <QuickActions />
-    </>
 
+      {
+        (
+          role === "super_admin" ||
+          role === "admin"
+        ) && (
+          <QuickActions />
+        )
+      }
+
+    </>
   )
 }
 
@@ -962,6 +990,11 @@ return (
     >
 
           <Routes>
+<Route
+  path="/login"
+  element={<Login />}
+/>
+
 <Route
   path="/polling-units-live"
   element={
@@ -1011,10 +1044,6 @@ return (
   }
 />
 
-<Route
-  path="/"
-  element={<SituationRoomDashboard />}
-/>
 
 <Route
   path="/export-pdf"
@@ -1083,7 +1112,23 @@ return (
     <RoleRoute
       allowedRoles={[
         "super_admin",
-        "admin"
+        "admin",
+        "observer"
+      ]}
+    >
+      <SituationRoomDashboard />
+    </RoleRoute>
+  }
+/>
+
+<Route
+  path="/live-dashboard"
+  element={
+    <RoleRoute
+      allowedRoles={[
+        "super_admin",
+        "admin",
+        "observer"
       ]}
     >
       <SituationRoomDashboard />
@@ -1102,6 +1147,15 @@ return (
   path="/reset-password/:token"
   element={
     <ResetPassword />
+  }
+/>
+
+<Route
+
+  path="/target-results"
+
+  element={
+    <TargetResultsDashboard />
   }
 />
 

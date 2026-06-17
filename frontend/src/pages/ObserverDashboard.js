@@ -4,43 +4,10 @@ import { useNavigate } from "react-router-dom";
 function ObserverDashboard() {
 
   const navigate = useNavigate();
-  const handleLogout = () => {
-
-  localStorage.removeItem("token");
-
-  localStorage.removeItem("user");
-
-  window.location.href = "/login";
-};
 
   return (
 
     <div style={contentStyle}>
-
-  <div
-    style={{
-      display: "flex",
-      justifyContent: "flex-end",
-      marginBottom: "20px"
-    }}
-  >
-
-    <button
-      onClick={handleLogout}
-      style={{
-        backgroundColor: "#dc2626",
-        color: "#fff",
-        border: "none",
-        padding: "10px 20px",
-        borderRadius: "6px",
-        cursor: "pointer",
-        fontWeight: "bold"
-      }}
-    >
-      Logout
-    </button>
-
-  </div>
      
       <h1>
         Observer Dashboard
@@ -54,7 +21,7 @@ function ObserverDashboard() {
 
         <div
   style={cardStyle}
-  onClick={() => navigate("/")}
+  onClick={() => navigate("/observer")}
 >
   Main Dashboard
 </div>

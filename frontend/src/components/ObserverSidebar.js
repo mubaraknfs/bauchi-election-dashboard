@@ -9,10 +9,13 @@ function ObserverSidebar() {
   const navigate = useNavigate();
 
   const menuItems = [
+  
+
     {
-      name: "Main Dashboard",
-      path: "/observer"
-    },
+  name: "Main Dashboard",
+  path: "/live-dashboard"
+},
+
     {
       name: "Polling Units Dashboard",
       path: "/polling-units-live"
