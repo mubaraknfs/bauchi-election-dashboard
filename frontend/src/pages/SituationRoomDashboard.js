@@ -8,7 +8,7 @@ import axios from "axios";
 import partyConfig from "../config/partyConfig";
 
 const API_URL =
-  "https://bauchi-election-dashboard-jjkdrh8lz.vercel.app";
+  "https://bauchi-election-dashboard.onrender.com";
 
 const SUMMARY_API =
   `${API_URL}/api/dashboard-summary`;

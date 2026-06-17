@@ -5,7 +5,7 @@ import React, {
 import axios from "axios";
 
 const API_URL =
-  "https://bauchi-election-dashboard-jjkdrh8lz.vercel.app";
+  "https://bauchi-election-dashboard.onrender.com";
 
 function ForgotPassword() {
 

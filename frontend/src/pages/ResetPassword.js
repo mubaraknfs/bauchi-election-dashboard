@@ -10,7 +10,7 @@ import {
 } from "react-router-dom";
 
 const API_URL =
-  "https://bauchi-election-dashboard-jjkdrh8lz.vercel.app";
+  "https://bauchi-election-dashboard.onrender.com";
 
 function ResetPassword() {
 

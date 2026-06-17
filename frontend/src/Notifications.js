@@ -7,7 +7,7 @@ import axios from "axios";
 import { io } from "socket.io-client";
 
 const API_URL =
-  "https://bauchi-election-dashboard-jjkdrh8lz.vercel.app";
+  "https://bauchi-election-dashboard.onrender.com";
 
 const socket = io(API_URL);
 
