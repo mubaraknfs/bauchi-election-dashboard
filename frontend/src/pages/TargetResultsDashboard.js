@@ -482,55 +482,35 @@ function TargetResultsDashboard() {
 
             <tr>
 
-              <th style={th}>
-                ID
-              </th>
+  <th style={th}>ID</th>
 
-              <th style={th}>
-                Ward
-              </th>
+  <th style={th}>Ward</th>
 
-              <th style={th}>
-                Polling Unit
-              </th>
+  <th style={th}>Polling Unit</th>
 
-              <th style={th}>
-                Agent
-              </th>
+  <th style={th}>Agent</th>
 
-              <th style={th}>
-                APC
-              </th>
+  <th style={th}>AAC</th>
+  <th style={th}>ADC</th>
+  <th style={th}>ADP</th>
+  <th style={th}>APC</th>
+  <th style={th}>APGA</th>
+  <th style={th}>APM</th>
+  <th style={th}>APP</th>
+  <th style={th}>BP</th>
+  <th style={th}>LP</th>
+  <th style={th}>NDC</th>
+  <th style={th}>NNPP</th>
+  <th style={th}>NRM</th>
+  <th style={th}>PDP</th>
+  <th style={th}>PRP</th>
+  <th style={th}>SDP</th>
+  <th style={th}>YPP</th>
+  <th style={th}>ZLP</th>
 
-              <th style={th}>
-                PDP
-              </th>
+  <th style={th}>Status</th>
 
-              <th style={th}>
-                NNPP
-              </th>
-
-              <th style={th}>
-                LP
-              </th>
-
-              <th style={th}>
-                APM
-              </th>
-
-              <th style={th}>
-                ADC
-              </th>
-
-              <th style={th}>
-                NDC
-              </th>
-
-              <th style={th}>
-                Status
-              </th>
-
-            </tr>
+</tr>
 
           </thead>
 
@@ -566,23 +546,7 @@ function TargetResultsDashboard() {
                     </td>
 
                     <td style={td}>
-                      {row.apc}
-                    </td>
-
-                    <td style={td}>
-                      {row.pdp}
-                    </td>
-
-                    <td style={td}>
-                      {row.nnpp}
-                    </td>
-
-                    <td style={td}>
-                      {row.lp}
-                    </td>
-
-                    <td style={td}>
-                      {row.apm}
+                      {row.aac}
                     </td>
 
                     <td style={td}>
@@ -590,7 +554,63 @@ function TargetResultsDashboard() {
                     </td>
 
                     <td style={td}>
+                      {row.adp}
+                    </td>
+
+                    <td style={td}>
+                      {row.apc}
+                    </td>
+
+                    <td style={td}>
+                      {row.apga}
+                    </td>
+
+                    <td style={td}>
+                      {row.apm}
+                    </td>
+
+                    <td style={td}>
+                      {row.app}
+                    </td>
+
+                    <td style={td}>
+                      {row.bp}
+                    </td>
+
+                    <td style={td}>
+                      {row.lp}
+                    </td>
+
+                    <td style={td}>
                       {row.ndc}
+                    </td>
+
+                    <td style={td}>
+                      {row.nnpp}
+                    </td>
+
+                    <td style={td}>
+                      {row.nrm}
+                    </td>
+
+                    <td style={td}>
+                      {row.pdp}
+                    </td>
+
+                    <td style={td}>
+                      {row.prp}
+                    </td>
+
+                    <td style={td}>
+                      {row.sdp}
+                    </td>
+
+                    <td style={td}>
+                      {row.ypp}
+                    </td>
+
+                    <td style={td}>
+                      {row.zlp}
                     </td>
 
                     <td style={td}>

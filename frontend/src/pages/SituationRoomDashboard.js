@@ -75,12 +75,15 @@ const [partyResults, setPartyResults] =
 const [tickerData, setTickerData] =
   useState([]);
 
+const [isMaximized, setIsMaximized] =
+  useState(false);
+
 useEffect(() => {
 
   loadData();
 
   const interval =
-    setInterval(loadData, 10000);
+    setInterval(loadData, 30000);
 
   return () =>
     clearInterval(interval);
@@ -126,29 +129,34 @@ async function loadData() {
 }
 
 const topParties =
-  Object.entries(partyResults)
+  React.useMemo(() =>
 
-    .map(([key, votes]) => ({
+    Object.entries(partyResults)
 
-      code: key,
+      .map(([key, votes]) => ({
 
-      votes: Number(votes),
+        code: key,
 
-      ...partyConfig[key]
+        votes: Number(votes),
 
-    }))
+        ...partyConfig[key]
 
-    .filter(
-      party =>
-        party?.name
-    )
+      }))
 
-    .sort(
-      (a, b) =>
-        b.votes - a.votes
-    )
+      .filter(
+        party => party?.name
+      )
 
-    .slice(0, 5);
+      .sort(
+        (a, b) =>
+          b.votes - a.votes
+      )
+
+      .slice(0, 5),
+
+    [partyResults]
+
+  );
 
   const stateLeader =
   topParties.length > 0
@@ -170,52 +178,67 @@ const pendingLGAs =
   collatedLGAs;
 
 const partyLeaderboard =
-  topParties.map(
-    party => {
+  React.useMemo(() =>
 
-      let lgaLeadCount = 0;
+    topParties.map(
+      party => {
 
-      tickerData.forEach(
-        lga => {
+        let lgaLeadCount = 0;
 
-          const parties =
-            Object.entries(lga)
+        tickerData.forEach(
+          (lga) => {
 
-              .filter(
-                ([key]) =>
-                  partyConfig[key]
-              )
+            const parties =
+              Object.entries(lga)
 
-              .map(
-                ([code, votes]) => ({
-                  code,
-                  votes:
-                    Number(votes)
-                })
-              )
+                .filter(
+                  ([key]) =>
+                    partyConfig[key]
+                )
 
-              .sort(
-                (a, b) =>
-                  b.votes -
-                  a.votes
-              );
+                .map(
+                  ([code, votes]) => ({
+                    code,
+                    votes:
+                      Number(votes)
+                  })
+                )
 
-          if (
-            parties[0]
-              ?.code ===
-            party.code
-          ) {
-            lgaLeadCount++;
+                .sort(
+                  (a, b) =>
+                    b.votes -
+                    a.votes
+                );
+
+            if (
+              parties[0]
+                ?.code ===
+              party.code
+            ) {
+
+              lgaLeadCount++;
+
+            }
+
           }
+        );
 
-        }
-      );
+        return {
 
-      return {
-        ...party,
-        lgaLeadCount
-      };
-    }
+          ...party,
+
+          lgaLeadCount
+
+        };
+
+      }
+    ),
+
+    [
+      topParties,
+      tickerData
+    ]
+
   );
 
   const topFiveTable =
@@ -275,36 +298,6 @@ const leadingPercentage =
       ) * 100
     : 0;
 
-  const lgaLeaders = {};
-
-tickerData.forEach((lga) => {
-
-  let winner = "";
-  let maxVotes = -1;
-
-  Object.keys(partyConfig).forEach((party) => {
-
-    const votes =
-      Number(lga[party] || 0);
-
-    if (votes > maxVotes) {
-
-      maxVotes = votes;
-      winner = party;
-
-    }
-
-  });
-
-  if (winner) {
-
-    lgaLeaders[winner] =
-      (lgaLeaders[winner] || 0) + 1;
-
-  }
-
-});
-
 const TOTAL_BAUCHI_LGAS = 20;
 
 /*
@@ -321,7 +314,19 @@ const uncollatedLGAs =
 
   return (
 
-  <div style={containerStyle}>
+  <div style={isMaximized ? maximizedContainerStyle : containerStyle}>
+
+    {isMaximized && (
+      <div style={exitMaximizeStyle}>
+        <button
+          onClick={() => setIsMaximized(false)}
+          style={closeMaximizeButtonStyle}
+          title="Exit Maximized View"
+        >
+          ✕
+        </button>
+      </div>
+    )}
 
     <div style={tickerWrapper}>
 
@@ -345,11 +350,22 @@ const uncollatedLGAs =
           Bauchi State Election Situation Room 2027
         </h1>
 
-        <div style={liveStyle}>
-          🔴 LIVE UPDATE
+        <div style={{ display: "flex", gap: "8px", alignItems: "center", fontSize: "13px" }}>
+          <button
+            onClick={() => setIsMaximized(!isMaximized)}
+            style={maximizeButtonStyle}
+            title={isMaximized ? "Minimize" : "Maximize"}
+          >
+            {isMaximized ? "⛶" : "⛶"}
+          </button>
+          <div style={liveStyle}>
+            🔴 LIVE UPDATE
+          </div>
+          <span>
+            Last Updated:
+            {new Date().toLocaleTimeString()}
+          </span>
         </div>
-        Last Updated:
-        {new Date().toLocaleTimeString()}
 
       </div>
 
@@ -361,8 +377,8 @@ const uncollatedLGAs =
       src={leadingParty.logo}
       alt={leadingParty.name}
       style={{
-        width: "80px",
-        height: "80px",
+        width: "50px",
+        height: "50px",
         objectFit: "contain"
       }}
     />
@@ -371,7 +387,7 @@ const uncollatedLGAs =
 
       <div
         style={{
-          fontSize: "14px",
+          fontSize: "13px",
           color: "#666",
           fontWeight: "bold"
         }}
@@ -381,7 +397,7 @@ const uncollatedLGAs =
 
       <div
         style={{
-          fontSize: "32px",
+          fontSize: "20px",
           fontWeight: "bold",
           color:
             partyColors[
@@ -394,7 +410,7 @@ const uncollatedLGAs =
 
       <div
         style={{
-          fontSize: "18px"
+          fontSize: "14px"
         }}
       >
         {leadingParty.votes}
@@ -404,7 +420,7 @@ const uncollatedLGAs =
 
       <div
         style={{
-          fontSize: "16px",
+          fontSize: "12px",
           color: "#666"
         }}
       >
@@ -423,8 +439,8 @@ const uncollatedLGAs =
   style={{
     background: "#fff",
     border: "1px solid #ddd",
-    borderRadius: "12px",
-    marginBottom: "20px",
+    borderRadius: "8px",
+    marginBottom: "10px",
     overflow: "hidden"
   }}
 >
@@ -444,9 +460,10 @@ const uncollatedLGAs =
           key={party.code}
           style={{
             textAlign: "center",
-            padding: "15px",
+            padding: "8px 6px",
             borderRight:
-              "1px solid #eee"
+              "1px solid #eee",
+            fontSize: "13px"
           }}
         >
 
@@ -454,9 +471,10 @@ const uncollatedLGAs =
             src={party.logo}
             alt={party.name}
             style={{
-              width: "50px",
-              height: "50px",
-              objectFit: "contain"
+              width: "40px",
+              height: "40px",
+              objectFit: "contain",
+              marginBottom: "4px"
             }}
           />
 
@@ -466,7 +484,8 @@ const uncollatedLGAs =
               color:
                 partyColors[
                   party.code
-                ]
+                ],
+              fontSize: "12px"
             }}
           >
             {party.name}
@@ -474,14 +493,15 @@ const uncollatedLGAs =
 
           <div
             style={{
-              fontSize: "22px",
-              fontWeight: "bold"
+              fontSize: "16px",
+              fontWeight: "bold",
+              marginTop: "2px"
             }}
           >
             {party.votes}
           </div>
 
-          <div>
+          <div style={{ fontSize: "11px" }}>
             {party.lgaLeadCount}
             {" "}
             LGAs
@@ -500,7 +520,7 @@ const uncollatedLGAs =
 
   <div style={fullWidthStyle}>
 
-  <h2>
+  <h2 style={{ margin: "8px 0 8px 0", fontSize: "18px" }}>
   Election Scores
 </h2>
 
@@ -508,9 +528,9 @@ const uncollatedLGAs =
   style={{
     display: "grid",
     gridTemplateColumns:
-  "repeat(auto-fit,minmax(220px,1fr))",
-    gap: "10px",
-    marginBottom: "25px"
+  "repeat(auto-fit,minmax(180px,1fr))",
+    gap: "6px",
+    marginBottom: "10px"
   }}
 >
 
@@ -519,13 +539,14 @@ const uncollatedLGAs =
     background: "#dbeafe",
     border: "1px solid #3b82f6",
     color: "#1e3a8a",
-    borderRadius: "10px",
-    padding: "15px",
-    textAlign: "center"
+    borderRadius: "6px",
+    padding: "8px 10px",
+    textAlign: "center",
+    fontSize: "14px"
   }}
 >
-    <h3>{summary.registered || 0}</h3>
-    <p>Registered Voters</p>
+    <h3 style={{ margin: "2px 0" }}>{summary.registered || 0}</h3>
+    <p style={{ margin: "2px 0", fontSize: "11px" }}>Registered Voters</p>
   </div>
 
  <div
@@ -533,13 +554,14 @@ const uncollatedLGAs =
     background: "#dcfce7",
     border: "1px solid #16a34a",
     color: "#166534",
-    borderRadius: "10px",
-    padding: "15px",
-    textAlign: "center"
+    borderRadius: "6px",
+    padding: "8px 10px",
+    textAlign: "center",
+    fontSize: "14px"
   }}
 >
-    <h3>{summary.accredited || 0}</h3>
-    <p>Accredited Voters</p>
+    <h3 style={{ margin: "2px 0" }}>{summary.accredited || 0}</h3>
+    <p style={{ margin: "2px 0", fontSize: "11px" }}>Accredited Voters</p>
   </div>
 
   <div
@@ -547,13 +569,14 @@ const uncollatedLGAs =
     background: "#fee2e2",
 border: "1px solid #ef4444",
 color: "#991b1b",
-    borderRadius: "10px",
-    padding: "15px",
-    textAlign: "center"
+    borderRadius: "6px",
+    padding: "8px 10px",
+    textAlign: "center",
+    fontSize: "14px"
   }}
 >
-    <h3>{summary.valid_votes || 0}</h3>
-    <p>Valid Votes</p>
+    <h3 style={{ margin: "2px 0" }}>{summary.valid_votes || 0}</h3>
+    <p style={{ margin: "2px 0", fontSize: "11px" }}>Valid Votes</p>
   </div>
 
   <div
@@ -561,13 +584,14 @@ color: "#991b1b",
     background: "#f3f4f6",
 border: "1px solid #6b7280",
 color: "#374151",
-    borderRadius: "10px",
-    padding: "15px",
-    textAlign: "center"
+    borderRadius: "6px",
+    padding: "8px 10px",
+    textAlign: "center",
+    fontSize: "14px"
   }}
 >
-    <h3>{summary.approved_results || 0}</h3>
-    <p>Approved</p>
+    <h3 style={{ margin: "2px 0" }}>{summary.approved_results || 0}</h3>
+    <p style={{ margin: "2px 0", fontSize: "11px" }}>Approved</p>
   </div>
 
   <div
@@ -575,13 +599,14 @@ color: "#374151",
     background: "#fee2e2",
 border: "1px solid #ef4444",
 color: "#991b1b",
-    borderRadius: "10px",
-    padding: "15px",
-    textAlign: "center"
+    borderRadius: "6px",
+    padding: "8px 10px",
+    textAlign: "center",
+    fontSize: "14px"
   }}
 >
-    <h3>{summary.pending_results || 0}</h3>
-    <p>Pending</p>
+    <h3 style={{ margin: "2px 0" }}>{summary.pending_results || 0}</h3>
+    <p style={{ margin: "2px 0", fontSize: "11px" }}>Pending</p>
   </div>
 
   <div
@@ -589,13 +614,14 @@ color: "#991b1b",
     background: "#f3f4f6",
 border: "1px solid #6b7280",
 color: "#374151",
-    borderRadius: "10px",
-    padding: "15px",
-    textAlign: "center"
+    borderRadius: "6px",
+    padding: "8px 10px",
+    textAlign: "center",
+    fontSize: "14px"
   }}
 >
-    <h3>{summary.cancelled_results || 0}</h3>
-    <p>Cancelled</p>
+    <h3 style={{ margin: "2px 0" }}>{summary.cancelled_results || 0}</h3>
+    <p style={{ margin: "2px 0", fontSize: "11px" }}>Cancelled</p>
   </div>
 
 </div>
@@ -604,11 +630,11 @@ color: "#374151",
 
 <div
   style={{
-    marginBottom: "35px"
+    marginBottom: "8px"
   }}
 >
 
-  <h3>
+  <h3 style={{ margin: "6px 0", fontSize: "16px" }}>
     LGA Progress
   </h3>
 
@@ -617,7 +643,7 @@ color: "#374151",
       display: "grid",
       gridTemplateColumns:
         "repeat(3,1fr)",
-      gap: "15px"
+      gap: "6px"
     }}
   >
 
@@ -625,33 +651,36 @@ color: "#374151",
   style={{
     ...statCard,
     background: "#e0f2fe",
-    border: "1px solid #0284c7"
+    border: "1px solid #0284c7",
+    padding: "8px 6px"
   }}
 >
-  <h2>20</h2>
-  <p>Total LGAs</p>
+  <h2 style={{ margin: "2px 0", fontSize: "20px" }}>20</h2>
+  <p style={{ margin: "2px 0", fontSize: "11px" }}>Total LGAs</p>
 </div>
 
     <div
   style={{
     ...statCard,
     background: "#fef3c7",
-    border: "1px solid #f59e0b"
+    border: "1px solid #f59e0b",
+    padding: "8px 6px"
   }}
 >
-  <h2>{lgasInProgress}</h2>
-  <p>LGAs In Progress</p>
+  <h2 style={{ margin: "2px 0", fontSize: "20px" }}>{lgasInProgress}</h2>
+  <p style={{ margin: "2px 0", fontSize: "11px" }}>LGAs In Progress</p>
 </div>
 
     <div
   style={{
     ...statCard,
     background: "#fee2e2",
-    border: "1px solid #ef4444"
+    border: "1px solid #ef4444",
+    padding: "8px 6px"
   }}
 >
-  <h2>{uncollatedLGAs}</h2>
-  <p>Uncollated LGAs</p>
+  <h2 style={{ margin: "2px 0", fontSize: "20px" }}>{uncollatedLGAs}</h2>
+  <p style={{ margin: "2px 0", fontSize: "11px" }}>Uncollated LGAs</p>
 </div>
 
   </div>
@@ -660,7 +689,8 @@ color: "#374151",
 
   <h3
     style={{
-      marginBottom: "20px"
+      marginBottom: "8px",
+      fontSize: "16px"
     }}
   >
     Leading Parties
@@ -681,61 +711,70 @@ color: "#374151",
       <div
         key={party.code}
         style={{
-          marginBottom: "20px"
+          marginBottom: "4px",
+          maxWidth: "100%"
         }}
       >
 
         <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "15px",
-            marginBottom: "8px"
-          }}
-        >
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "15px",
+    marginBottom: "8px",
+    width: "100%"
+  }}
+>
 
-          <img
-            src={party.logo}
-            alt={party.name}
-            style={{
-              width: "50px",
-              height: "50px",
-              objectFit: "contain"
-            }}
-          />
+  <img
+    src={party.logo}
+    alt={party.name}
+    style={{
+      width: "50px",
+      height: "50px",
+      objectFit: "contain"
+    }}
+  />
 
-          <div
-            style={{
-              flex: 1
-            }}
-          >
+  <div
+    style={{
+      flex: 1,
+      minWidth: 0
+    }}
+  >
 
-            <strong>
-              {party.name}
-            </strong>
+    <strong>
+      {party.name}
+    </strong>
 
-            <div>
-              Votes:
-              {" "}
-              {party.votes}
-            </div>
+    <div>
+      Votes: {party.votes}
+    </div>
 
-          </div>
+  </div>
 
-          <strong>
-            {percentage.toFixed(1)}%
-          </strong>
+  <div
+    style={{
+      width: "70px",
+      textAlign: "right",
+      fontWeight: "bold",
+      flexShrink: 0
+    }}
+  >
+    {percentage.toFixed(1)}%
+  </div>
 
-        </div>
+</div>
 
-        <div
-          style={{
-            width: "100%",
-            height: "12px",
-            background: "#eee",
-            borderRadius: "20px"
-          }}
-        >
+<div
+  style={{
+    width: "calc(100% - 80px)",
+    height: "12px",
+    background: "#eee",
+    borderRadius: "20px",
+    overflow: "hidden"
+  }}
+>
 
           <div
             style={{
@@ -747,7 +786,7 @@ color: "#374151",
               party.code
               ] || "#ff4d4f",
               borderRadius:
-                "20px"
+                "10px"
             }}
           />
 
@@ -773,28 +812,50 @@ color: "#374151",
 }
 
 const containerStyle = {
-  padding: "25px",
-  paddingBottom: "70px"
+  padding: "10px 15px",
+  paddingBottom: "65px",
+  height: "calc(100vh - 100px)",
+  overflowY: "auto"
+};
+
+const maximizedContainerStyle = {
+  padding: "10px 15px",
+  paddingBottom: "65px",
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%",
+  maxWidth: "100%",
+  boxSizing: "border-box",
+  backgroundColor: "#fff",
+  zIndex: 9998,
+  overflowY: "auto",
+  overflowX: "auto"
 };
 
 const headerStyle = {
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
-  marginBottom: "30px"
+  marginBottom: "12px",
+  gap: "10px",
+  flexWrap: "wrap"
 };
 
 const titleStyle = {
   margin: 0,
-  fontSize: "36px"
+  fontSize: "22px"
 };
 
 const liveStyle = {
   background: "#ff4d4f",
   color: "#fff",
-  padding: "10px 18px",
-  borderRadius: "25px",
-  fontWeight: "bold"
+  padding: "6px 12px",
+  borderRadius: "20px",
+  fontWeight: "bold",
+  fontSize: "12px",
+  whiteSpace: "nowrap"
 };
 
 const fullWidthStyle = {
@@ -803,9 +864,9 @@ const fullWidthStyle = {
 
   border: "1px solid #ddd",
 
-  borderRadius: "12px",
+  borderRadius: "8px",
 
-  padding: "25px",
+  padding: "12px",
 
   width: "100%"
 };
@@ -816,19 +877,19 @@ const leaderBannerStyle = {
 
   alignItems: "center",
 
-  gap: "20px",
+  gap: "12px",
 
   background: "#fff",
 
   border: "2px solid #eee",
 
-  borderLeft: "8px solid gold",
+  borderLeft: "6px solid gold",
 
-  borderRadius: "12px",
+  borderRadius: "8px",
 
-  padding: "20px",
+  padding: "12px",
 
-  marginBottom: "25px",
+  marginBottom: "12px",
 
   boxShadow:
     "0 2px 8px rgba(0,0,0,0.08)"
@@ -919,14 +980,52 @@ const statCard = {
 
   border: "1px solid #e5e7eb",
 
-  borderRadius: "12px",
+  borderRadius: "8px",
 
-  padding: "25px",
+  padding: "10px 8px",
 
   textAlign: "center",
 
   boxShadow:
-    "0 2px 8px rgba(0,0,0,0.08)"
+    "0 2px 4px rgba(0,0,0,0.05)"
 };
 
-export default SituationRoomDashboard;
+const maximizeButtonStyle = {
+  background: "#f0f0f0",
+  border: "1px solid #ddd",
+  borderRadius: "4px",
+  padding: "6px 12px",
+  cursor: "pointer",
+  fontSize: "16px",
+  fontWeight: "bold",
+  transition: "all 0.3s ease",
+  color: "#333"
+};
+
+const closeMaximizeButtonStyle = {
+  position: "absolute",
+  top: "15px",
+  right: "15px",
+  background: "#ff4d4f",
+  color: "#fff",
+  border: "none",
+  borderRadius: "50%",
+  width: "40px",
+  height: "40px",
+  fontSize: "24px",
+  cursor: "pointer",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  zIndex: 10001,
+  transition: "all 0.3s ease"
+};
+
+const exitMaximizeStyle = {
+  position: "relative",
+  marginBottom: "20px"
+};
+
+export default React.memo(
+  SituationRoomDashboard
+);

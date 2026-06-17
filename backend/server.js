@@ -14,6 +14,8 @@ const nodemailer =
 const crypto =
   require("crypto");
 const express = require("express");
+const compression =
+require("compression");
 const cors = require("cors");
 const dotenv = require("dotenv");
 
@@ -65,7 +67,9 @@ app.use(
     credentials: true
   })
 );
-
+app.use(
+  compression()
+);
 app.use(helmet());
 
 app.use(express.json());
