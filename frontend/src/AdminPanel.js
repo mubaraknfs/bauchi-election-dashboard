@@ -13,7 +13,7 @@ API URL
 */
 
 const API_URL =
-  "https://bauchi-election-dashboard.onrender.com";
+  "https://bauchi-election-dashboard-jjkdrh8lz.vercel.app";
 
 /*
 ====================================

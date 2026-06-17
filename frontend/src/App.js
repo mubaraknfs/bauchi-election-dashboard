@@ -95,7 +95,8 @@ SOCKET CONNECTION
 */
 
 const socket = io(
-  "https://bauchi-election-dashboard.onrender.com"
+  "https://bauchi-election-dashboard-jjkdrh8lz.vercel.app"
+
 );
 
 function App() {
@@ -276,7 +277,7 @@ const [
 
       const response =
         await axios.get(
-          "https://bauchi-election-dashboard.onrender.com/api/parties"
+          "https://bauchi-election-dashboard-jjkdrh8lz.vercel.app"
         );
 
       setParties(response.data);
@@ -312,7 +313,7 @@ const fetchLgas =
       const response =
         await axios.get(
 
-          "https://bauchi-election-dashboard.onrender.com/api/lgas"
+          "https://bauchi-election-dashboard-jjkdrh8lz.vercel.app/api/lgas"
         );
 
       setLgas(
@@ -345,7 +346,7 @@ const fetchLgas =
       const response =
         await axios.get(
 
-          `https://bauchi-election-dashboard.onrender.com/api/polling-units/${wardId}`
+          `https://bauchi-election-dashboard-jjkdrh8lz.vercel.app/api/polling-units/${wardId}`
         );
 
       console.log(
@@ -378,7 +379,7 @@ const fetchLgas =
 
       const response =
         await axios.get(
-          "https://bauchi-election-dashboard.onrender.com/results"
+          "https://bauchi-election-dashboard-jjkdrh8lz.vercel.app/results"
         );
 
       setResults(response.data);
@@ -412,7 +413,7 @@ const fetchOvervotingData =
       const response =
         await axios.get(
 
-          "https://bauchi-election-dashboard.onrender.com/api/overvoting",
+          "https://bauchi-election-dashboard-jjkdrh8lz.vercel.app/api/overvoting",
 
           {
 
@@ -448,7 +449,7 @@ const fetchOvervotingData =
 
         const response =
           await axios.get(
-            "https://bauchi-election-dashboard.onrender.com/api/all-ward-summaries"
+            "https://bauchi-election-dashboard-jjkdrh8lz.vercel.app/api/all-ward-summaries"
           );
 
         setAllWardSummaries(
@@ -474,7 +475,7 @@ const fetchOvervotingData =
 
         const response =
           await axios.get(
-            "https://bauchi-election-dashboard.onrender.com/api/lga-summaries"
+            "https://bauchi-election-dashboard-jjkdrh8lz.vercel.app/api/lga-summaries"
           );
 
         setLgaSummaries(
@@ -500,7 +501,7 @@ const fetchOvervotingData =
 
         const response =
           await axios.get(
-            "https://bauchi-election-dashboard.onrender.com/api/state-summary"
+            "https://bauchi-election-dashboard-jjkdrh8lz.vercel.app/api/state-summary"
           );
 
         setStateSummary(
@@ -536,7 +537,7 @@ if (!token) {
       const response =
         await axios.get(
 
-          "https://bauchi-election-dashboard.onrender.com/api/audit-logs",
+          "https://bauchi-election-dashboard-jjkdrh8lz.vercel.app/api/audit-logs",
 
           {
 
@@ -756,7 +757,7 @@ if (
 const response =
   await axios.post(
 
-    "https://bauchi-election-dashboard.onrender.com/submit-result",
+    "https://bauchi-election-dashboard-jjkdrh8lz.vercel.app/submit-result",
 
     finalData,
 

@@ -14,11 +14,11 @@ import { io } from "socket.io-client";
 */
 
 const socket = io(
-  "https://bauchi-election-dashboard.onrender.com"
+  "https://bauchi-election-dashboard-jjkdrh8lz.vercel.app"
 );
 
 const API_URL =
-  "https://bauchi-election-dashboard.onrender.com";
+  "https://bauchi-election-dashboard-jjkdrh8lz.vercel.app";
 
 function ApprovalPanel() {
 

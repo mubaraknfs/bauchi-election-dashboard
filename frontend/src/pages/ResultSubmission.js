@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const API_URL =
-  "https://bauchi-election-dashboard.onrender.com";
+  "https://bauchi-election-dashboard-jjkdrh8lz.vercel.app";
 
   const cancellationReasons = [
 
