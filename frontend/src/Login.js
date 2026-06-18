@@ -1,466 +1,604 @@
 import React, {
-  useState,
-  useEffect
+useState,
+useEffect
 } from "react";
 
 import axios from "axios";
 
 function Login() {
 
-  const [email, setEmail] =
-    useState("");
+const [email, setEmail] =
+useState("");
 
-  const [password, setPassword] =
-    useState("");
+const [password, setPassword] =
+useState("");
 
-  const [showPassword, setShowPassword] =
-    useState(false);
+const [showPassword, setShowPassword] =
+useState(false);
 
-  const [loading, setLoading] =
-    useState(false);
+const [loading, setLoading] =
+useState(false);
 
-  useEffect(() => {
+const [isMobile, setIsMobile] =
+useState(
+window.innerWidth < 768
+);
 
-    setEmail("");
-    setPassword("");
+useEffect(() => {
 
-    localStorage.removeItem(
-      "loginEmail"
+setEmail("");
+setPassword("");
+
+localStorage.removeItem(
+  "loginEmail"
+);
+
+}, []);
+
+useEffect(() => {
+
+const handleResize = () => {
+
+  setIsMobile(
+    window.innerWidth < 768
+  );
+
+};
+
+window.addEventListener(
+  "resize",
+  handleResize
+);
+
+return () => {
+
+  window.removeEventListener(
+    "resize",
+    handleResize
+  );
+
+};
+
+}, []);
+
+const handleLogin = async () => {
+
+try {
+
+  setLoading(true);
+
+  const response =
+    await axios.post(
+
+      "https://bauchi-election-dashboard.onrender.com/api/login",
+
+      {
+        email: email.trim(),
+        password: password.trim()
+      }
     );
 
-  }, []);
+  if (response.data.success) {
 
-  const handleLogin = async () => {
+    localStorage.setItem(
+      "token",
+      response.data.token
+    );
 
-    try {
+    localStorage.setItem(
 
-      setLoading(true);
+      "user",
 
-      const response =
-        await axios.post(
+      JSON.stringify(
+        response.data.user
+      )
+    );
 
-          "https://bauchi-election-dashboard.onrender.com/api/login",
+    if (!email.trim() || !password.trim()) {
 
-          {
-            email: email.trim(),
-            password: password.trim()
-          }
-        );
+  alert(
+    "Please enter email and password"
+  );
 
-      if (response.data.success) {
+  return;
+}
 
-        localStorage.setItem(
-          "token",
-          response.data.token
-        );
+    const role =
+      response.data.user.role;
 
-        localStorage.setItem(
+    if (
+      role === "observer"
+    ) {
 
-          "user",
+      window.location.href =
+        "/observer";
 
-          JSON.stringify(
-            response.data.user
-          )
-        );
+    } else if (
+      role === "admin"
+    ) {
 
-        const role =
-          response.data.user.role;
+      window.location.href =
+        "/admin";
 
-        if (
-          role === "observer"
-        ) {
+    } else if (
+      role ===
+      "collation_officer"
+    ) {
 
-          window.location.href =
-            "/observer";
+      window.location.href =
+        "/collation";
 
-        } else if (
-          role === "admin"
-        ) {
+    } else {
 
-          window.location.href =
-            "/admin";
-
-        } else if (
-          role ===
-          "collation_officer"
-        ) {
-
-          window.location.href =
-            "/collation";
-
-        } else {
-
-          window.location.href =
-            "/";
-        }
-
-      } else {
-
-        setLoading(false);
-
-        alert(
-          response.data.message
-        );
-      }
-
-    } catch (error) {
-
-      setLoading(false);
-
-      console.error(error);
-
-      alert(
-
-        error.response?.data
-          ?.message ||
-
-        "Invalid credentials"
-      );
+      window.location.href =
+        "/";
     }
-  };
 
-  return (
+  } else {
 
-    <div style={containerStyle}>
+    setLoading(false);
 
-      <div style={wrapperStyle}>
+    alert(
+      response.data.message
+    );
+  }
 
-        <div style={leftPanelStyle}>
-          
-          <h1 style={systemTitleStyle}>
-            Bauchi State Election
-          </h1>
+} catch (error) {
 
-          <h2>
-            Situation Room 2027
-          </h2>
+  setLoading(false);
 
-          <p
-            style={{
-              opacity: 0.9,
-              marginBottom: "25px"
-            }}
-          >
-            Secure Election
-            Management Platform
-          </p>
+  console.error(error);
 
-          <div style={featureStyle}>
-            ✓ Real-time Result Monitoring
-          </div>
+  alert(
 
-          <div style={featureStyle}>
-            ✓ GIS Election Mapping
-          </div>
+    error.response?.data
+      ?.message ||
 
-          <div style={featureStyle}>
-            ✓ Fraud Detection Engine
-          </div>
-
-          <div style={featureStyle}>
-            ✓ Audit Logs & Compliance
-          </div>
-
-          <div style={featureStyle}>
-            ✓ Target Result Tracking
-          </div>
-
-        </div>
-
-        <div style={cardStyle}>
-
-          <h1 style={loginTitleStyle}>
-            Election Management Portal
-          </h1>
-
-          <form autoComplete="off">
-
-            <input
-
-              type="email"
-
-              autoComplete="off"
-
-              placeholder="Email"
-
-              value={email}
-
-              onChange={(e) =>
-                setEmail(
-                  e.target.value
-                )
-              }
-
-              style={inputStyle}
-            />
-
-            <input
-
-              type={
-                showPassword
-                  ? "text"
-                  : "password"
-              }
-
-              autoComplete="new-password"
-
-              placeholder="Password"
-
-              value={password}
-
-              onChange={(e) =>
-                setPassword(
-                  e.target.value
-                )
-              }
-
-              style={inputStyle}
-            />
-
-          </form>
-
-          <div
-            style={{
-              marginBottom: "15px"
-            }}
-          >
-
-            <label
-              style={{
-                fontSize: "14px"
-              }}
-            >
-
-              <input
-
-                type="checkbox"
-
-                checked={
-                  showPassword
-                }
-
-                onChange={() =>
-                  setShowPassword(
-                    !showPassword
-                  )
-                }
-
-              />
-
-              {" "}
-              Show Password
-
-            </label>
-
-          </div>
-
-          <button
-
-            style={buttonStyle}
-
-            onClick={handleLogin}
-
-            disabled={loading}
-          >
-
-            {
-              loading
-
-                ? "Logging in..."
-
-                : "Login"
-            }
-
-          </button>
-
-          <div
-            style={{
-              marginTop: "20px",
-              textAlign: "center"
-            }}
-          >
-
-            <span
-
-              onClick={() =>
-                window.location.href =
-                  "/forgot-password"
-              }
-
-              style={{
-                color: "#2563eb",
-                cursor: "pointer",
-                fontWeight: "bold"
-              }}
-            >
-
-              Forgot Password?
-
-            </span>
-
-          </div>
-
-          <div
-            style={{
-              marginTop: "30px",
-              textAlign: "center",
-              fontSize: "12px",
-              color: "#64748b"
-            }}
-          >
-
-            🔒 Secure JWT Authentication
-
-            <br />
-
-            © 2027 Bauchi State Election Situation Room
-
-            <br />
-
-            Powered by MBR Design Technologies
-
-            <br />
-
-            Version 1.0.0
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
+    "Invalid credentials"
   );
 }
 
+};
+
 const containerStyle = {
 
-  minHeight: "100vh",
+minHeight: "100vh",
 
-  display: "flex",
+display: "flex",
 
-  justifyContent: "center",
+justifyContent: "center",
 
-  alignItems: "center",
+alignItems: "center",
 
-  padding: "20px",
+padding: "20px",
 
-  background:
-    "linear-gradient(135deg,#eaf2ff,#f8fafc)"
+background:
+  "linear-gradient(135deg,#eaf2ff,#f8fafc)"
+
 };
 
 const wrapperStyle = {
 
-  width: "100%",
+width: "100%",
 
-  maxWidth: "1000px",
+maxWidth: "1100px",
 
-  display: "flex",
+display: "flex",
 
-  flexWrap: "wrap",
+flexDirection:
+  isMobile
+    ? "column"
+    : "row",
 
-  backgroundColor: "#ffffff",
+backgroundColor: "#ffffff",
 
-  borderRadius: "18px",
+borderRadius: "20px",
 
-  overflow: "hidden",
+overflow: "hidden",
 
-  boxShadow:
-    "0 20px 40px rgba(0,0,0,0.15)"
+boxShadow:
+  "0 20px 50px rgba(0,0,0,0.15)"
+
 };
 
 const leftPanelStyle = {
 
-  flex: 1,
+flex: 1,
 
-  minWidth: "320px",
+minWidth: "320px",
 
-  padding: "50px",
+padding:
+  isMobile
+    ? "35px"
+    : "50px",
 
-  background:
-    "linear-gradient(135deg,#0f172a,#1e3a8a)",
+background:
+  "linear-gradient(135deg,#0f172a,#1e3a8a)",
 
-  color: "#ffffff",
+color: "#ffffff",
 
-  display: "flex",
+display: "flex",
 
-  flexDirection: "column",
+flexDirection: "column",
 
-  justifyContent: "center"
+justifyContent: "center",
+
+alignItems:
+  isMobile
+    ? "center"
+    : "flex-start",
+
+textAlign:
+  isMobile
+    ? "center"
+    : "left"
+
 };
 
 const cardStyle = {
 
-  flex: 1,
+flex: 1,
 
-  minWidth: "320px",
+minWidth: "320px",
 
-  padding: "50px",
+padding:
+  isMobile
+    ? "35px"
+    : "50px",
 
-  backgroundColor: "#ffffff",
+backgroundColor: "#ffffff",
 
-  display: "flex",
+display: "flex",
 
-  flexDirection: "column",
+flexDirection: "column",
 
-  justifyContent: "center"
+justifyContent: "center"
+
 };
 
 const systemTitleStyle = {
 
-  marginBottom: "10px"
+marginBottom: "10px",
+
+fontSize:
+  isMobile
+    ? "32px"
+    : "42px",
+
+fontWeight: "700"
+
 };
 
 const loginTitleStyle = {
 
-  marginBottom: "30px",
+marginBottom: "30px",
 
-  textAlign: "center"
+textAlign: "center",
+
+fontSize:
+  isMobile
+    ? "30px"
+    : "38px"
+
 };
 
 const featureStyle = {
 
-  marginBottom: "12px",
+marginBottom: "12px",
 
-  fontSize: "15px"
+fontSize:
+  isMobile
+    ? "14px"
+    : "16px"
+
 };
 
 const inputStyle = {
 
-  width: "100%",
+width: "100%",
 
-  padding: "14px",
+padding: "15px",
 
-  marginBottom: "15px",
+marginBottom: "15px",
 
-  borderRadius: "8px",
+borderRadius: "8px",
 
-  border: "1px solid #d1d5db",
+border: "1px solid #d1d5db",
 
-  boxSizing: "border-box",
+boxSizing: "border-box",
 
-  fontSize: "15px"
+fontSize: "16px"
+
 };
 
 const buttonStyle = {
 
-  width: "100%",
+width: "100%",
 
-  padding: "14px",
+padding: "16px",
 
-  backgroundColor: "#16a34a",
+backgroundColor: "#16a34a",
 
-  color: "#ffffff",
+color: "#ffffff",
 
-  border: "none",
+border: "none",
 
-  borderRadius: "8px",
+borderRadius: "8px",
 
-  cursor: "pointer",
+cursor: "pointer",
 
-  fontWeight: "bold",
+fontWeight: "bold",
 
-  fontSize: "15px"
+fontSize: "16px",
+
+transition: "0.3s"
+
+};
+
+return (
+
+<div style={containerStyle}>
+
+  <div style={wrapperStyle}>
+
+    <div style={leftPanelStyle}>
+
+      <img
+        src="/bauchi.png"
+        alt="Bauchi Logo"
+        style={{
+          width:
+            isMobile
+              ? "90px"
+              : "120px",
+
+          height:
+            isMobile
+              ? "90px"
+              : "120px",
+
+          objectFit: "contain",
+
+          marginBottom: "20px"
+        }}
+      />
+
+      <h1 style={systemTitleStyle}>
+        Bauchi State Election
+      </h1>
+
+      <h2>
+        Situation Room 2027
+      </h2>
+
+      <p
+        style={{
+          opacity: 0.9,
+          marginBottom: "25px"
+        }}
+      >
+        Secure Election
+        Management Platform
+      </p>
+
+      <div style={featureStyle}>
+        ✓ Real-time Result Monitoring
+      </div>
+
+      <div style={featureStyle}>
+        ✓ GIS Election Mapping
+      </div>
+
+      <div style={featureStyle}>
+        ✓ Fraud Detection Engine
+      </div>
+
+      <div style={featureStyle}>
+        ✓ Audit Logs & Compliance
+      </div>
+
+      <div style={featureStyle}>
+        ✓ Target Result Tracking
+      </div>
+
+    </div>
+
+    <div style={cardStyle}>
+
+      <h1 style={loginTitleStyle}>
+        Election Management Portal
+      </h1>
+      
+      <div
+  style={{
+    textAlign: "center",
+    marginBottom: "20px"
+  }}
+>
+
+  <span
+    style={{
+      backgroundColor: "#dcfce7",
+      color: "#166534",
+      padding: "6px 14px",
+      borderRadius: "20px",
+      fontSize: "12px",
+      fontWeight: "bold"
+    }}
+  >
+
+    ● System Online
+
+  </span>
+
+</div>
+
+      <form
+        autoComplete="off"
+
+        onSubmit={(e) => {
+
+          e.preventDefault();
+
+          handleLogin();
+
+        }}
+      >
+
+        <input
+
+          type="email"
+
+          autoComplete="off"
+
+          placeholder="Email"
+
+          value={email}
+
+          onChange={(e) =>
+            setEmail(
+              e.target.value
+            )
+          }
+
+          style={inputStyle}
+        />
+
+        <input
+
+          type={
+            showPassword
+              ? "text"
+              : "password"
+          }
+
+          autoComplete="new-password"
+
+          placeholder="Password"
+
+          value={password}
+
+          onChange={(e) =>
+            setPassword(
+              e.target.value
+            )
+          }
+
+          style={inputStyle}
+        />
+
+        <div
+          style={{
+            marginBottom: "15px"
+          }}
+        >
+
+          <label
+            style={{
+              fontSize: "14px"
+            }}
+          >
+
+            <input
+
+              type="checkbox"
+
+              checked={
+                showPassword
+              }
+
+              onChange={() =>
+                setShowPassword(
+                  !showPassword
+                )
+              }
+
+            />
+
+            {" "}
+            Show Password
+
+          </label>
+
+        </div>
+
+            <button
+            type="submit"
+            style={buttonStyle}
+            disabled={loading}
+          >
+
+          {
+            loading
+
+              ? "Logging in..."
+
+              : "Login"
+          }
+
+        </button>
+
+      </form>
+
+      <div
+        style={{
+          marginTop: "20px",
+          textAlign: "center"
+        }}
+      >
+
+        <span
+
+          onClick={() =>
+            window.location.href =
+              "/forgot-password"
+          }
+
+          style={{
+            color: "#2563eb",
+            cursor: "pointer",
+            fontWeight: "bold"
+          }}
+        >
+
+          Forgot Password?
+
+        </span>
+
+      </div>
+
+      <div
+        style={{
+          marginTop: "30px",
+          textAlign: "center",
+          fontSize: "12px",
+          color: "#64748b"
+        }}
+      >
+
+        🔒 Secure JWT Authentication
+
+        <br />
+
+        © 2027 Bauchi State Election Situation Room
+
+        <br />
+
+        Powered by MBR Design Technologies
+
+        <br />
+
+        Version 1.0.0
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+);
 };
 
 export default Login;

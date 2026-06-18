@@ -878,7 +878,7 @@ app.post(
   },
   process.env.JWT_SECRET,
   {
-    expiresIn: "24h"
+    expiresIn: "4h"
   }
 );
 

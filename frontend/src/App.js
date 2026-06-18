@@ -87,6 +87,35 @@ import {
 } from "recharts";
 
 import { io } from "socket.io-client";
+axios.interceptors.response.use(
+
+  (response) => response,
+
+  (error) => {
+
+    if (
+
+      error.response &&
+
+      error.response.status === 401
+
+    ) {
+
+      localStorage.clear();
+
+      sessionStorage.clear();
+
+      alert(
+        "Session expired. Please login again."
+      );
+
+      window.location.href =
+        "/login";
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 /*
 ====================================
