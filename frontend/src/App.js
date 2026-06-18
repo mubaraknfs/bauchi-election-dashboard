@@ -276,9 +276,10 @@ const [
 
       const response =
         await axios.get(
-          "https://bauchi-election-dashboard.onrender.com"
-        );
+          "https://bauchi-election-dashboard.onrender.com/api/parties"
 
+        );
+      console.log(response.data);
       setParties(response.data);
 
       const initialVotes = {};
@@ -312,7 +313,7 @@ const fetchLgas =
       const response =
         await axios.get(
 
-          "https://bauchi-election-dashboard.onrender.com"
+          "https://bauchi-election-dashboard.onrender.com/api/lgas"
         );
 
       setLgas(
