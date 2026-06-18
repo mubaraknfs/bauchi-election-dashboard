@@ -60,7 +60,11 @@ CORS
 
 app.use(
   cors({
-    origin: true,
+    origin: [
+      "http://localhost:3000",
+      "https://bauchi-election-dashboard.vercel.app",
+      process.env.FRONTEND_URL
+    ],
     credentials: true
   })
 );
@@ -229,7 +233,11 @@ const io = new Server(server, {
 
   cors: {
 
-    origin: true,
+    origin: [
+      "http://localhost:3000",
+      "https://bauchi-election-dashboard.vercel.app",
+      process.env.FRONTEND_URL
+    ],
 
     methods: [
       "GET",
