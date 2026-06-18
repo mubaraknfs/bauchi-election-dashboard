@@ -1,5 +1,6 @@
 import React, {
-  useState
+  useState,
+  useEffect
 } from "react";
 
 import axios from "axios";
@@ -12,186 +13,319 @@ function Login() {
   const [password, setPassword] =
     useState("");
 
-const handleLogin = async () => {
+  const [showPassword, setShowPassword] =
+    useState(false);
 
-  try {
+  const [loading, setLoading] =
+    useState(false);
 
-    console.log("LOGIN EMAIL:", email);
-    console.log("LOGIN PASSWORD:", password);
+  useEffect(() => {
 
-    const response =
-      await axios.post(
+    setEmail("");
+    setPassword("");
 
-        "https://bauchi-election-dashboard.onrender.com/api/login",
-
-        {
-          email: email.trim(),
-          password: password.trim()
-        }
-      );
-
-    console.log(
-      "LOGIN RESPONSE:",
-      response.data
+    localStorage.removeItem(
+      "loginEmail"
     );
 
-    if (response.data.success) {
+  }, []);
 
-      localStorage.setItem(
-        "token",
-        response.data.token
-      );
+  const handleLogin = async () => {
 
-    console.log(
-  "TOKEN SAVED:",
-  response.data.token
-);
+    try {
 
-      localStorage.setItem(
+      setLoading(true);
 
-        "user",
+      const response =
+        await axios.post(
 
-        JSON.stringify(
-          response.data.user
-        )
-      );
+          "https://bauchi-election-dashboard.onrender.com/api/login",
 
-    console.log(
-  "TOKEN SAVED:",
-  response.data.token
-);
+          {
+            email: email.trim(),
+            password: password.trim()
+          }
+        );
 
-      alert("Login successful");
+      if (response.data.success) {
 
-const role =
-  response.data.user.role;
+        localStorage.setItem(
+          "token",
+          response.data.token
+        );
 
-if (role === "observer") {
+        localStorage.setItem(
 
-  window.location.href =
-    "/observer";
+          "user",
 
-} else if (
-  role === "admin"
-) {
+          JSON.stringify(
+            response.data.user
+          )
+        );
 
-  window.location.href =
-    "/admin";
+        const role =
+          response.data.user.role;
 
-} else if (
-  role === "collation_officer"
-) {
+        if (
+          role === "observer"
+        ) {
 
-  window.location.href =
-    "/collation";
+          window.location.href =
+            "/observer";
 
-} else {
+        } else if (
+          role === "admin"
+        ) {
 
-  window.location.href =
-    "/";
-}
+          window.location.href =
+            "/admin";
 
-    } else {
+        } else if (
+          role ===
+          "collation_officer"
+        ) {
+
+          window.location.href =
+            "/collation";
+
+        } else {
+
+          window.location.href =
+            "/";
+        }
+
+      } else {
+
+        setLoading(false);
+
+        alert(
+          response.data.message
+        );
+      }
+
+    } catch (error) {
+
+      setLoading(false);
+
+      console.error(error);
 
       alert(
-        response.data.message
+
+        error.response?.data
+          ?.message ||
+
+        "Invalid credentials"
       );
     }
-
-  } catch (error) {
-
-    console.error(
-      "LOGIN ERROR:",
-      error.response?.data ||
-      error.message
-    );
-
-    alert(
-
-      error.response?.data?.message ||
-
-      "Invalid credentials"
-    );
-  }
-};
+  };
 
   return (
 
     <div style={containerStyle}>
 
-      <div style={cardStyle}>
+      <div style={wrapperStyle}>
 
-        <h1>
-          Election Login
-        </h1>
+        <div style={leftPanelStyle}>
+          
+          <h1 style={systemTitleStyle}>
+            Bauchi State Election
+          </h1>
 
-        <input
+          <h2>
+            Situation Room 2027
+          </h2>
 
-          type="email"
+          <p
+            style={{
+              opacity: 0.9,
+              marginBottom: "25px"
+            }}
+          >
+            Secure Election
+            Management Platform
+          </p>
 
-          placeholder="Email"
+          <div style={featureStyle}>
+            ✓ Real-time Result Monitoring
+          </div>
 
-          value={email}
+          <div style={featureStyle}>
+            ✓ GIS Election Mapping
+          </div>
 
-          onChange={(e) =>
-            setEmail(
-              e.target.value
-            )
-          }
+          <div style={featureStyle}>
+            ✓ Fraud Detection Engine
+          </div>
 
-          style={inputStyle}
-        />
+          <div style={featureStyle}>
+            ✓ Audit Logs & Compliance
+          </div>
 
-        <input
+          <div style={featureStyle}>
+            ✓ Target Result Tracking
+          </div>
 
-          type="password"
+        </div>
 
-          placeholder="Password"
+        <div style={cardStyle}>
 
-          value={password}
+          <h1 style={loginTitleStyle}>
+            Election Management Portal
+          </h1>
 
-          onChange={(e) =>
-            setPassword(
-              e.target.value
-            )
-          }
+          <form autoComplete="off">
 
-          style={inputStyle}
-        />
+            <input
 
-        <button
+              type="email"
 
-          style={buttonStyle}
+              autoComplete="off"
 
-          onClick={handleLogin}
-        >
+              placeholder="Email"
 
-          Login
+              value={email}
 
-        </button>
+              onChange={(e) =>
+                setEmail(
+                  e.target.value
+                )
+              }
 
-        <div
-  style={{
-    marginTop: "15px",
-    textAlign: "center"
-  }}
->
+              style={inputStyle}
+            />
 
-  <span
-    onClick={() =>
-      window.location.href =
-        "/forgot-password"
-    }
-    style={{
-      color: "#2563eb",
-      cursor: "pointer",
-      fontWeight: "bold"
-    }}
-  >
-    Forgot Password?
-  </span>
+            <input
 
-</div>
+              type={
+                showPassword
+                  ? "text"
+                  : "password"
+              }
+
+              autoComplete="new-password"
+
+              placeholder="Password"
+
+              value={password}
+
+              onChange={(e) =>
+                setPassword(
+                  e.target.value
+                )
+              }
+
+              style={inputStyle}
+            />
+
+          </form>
+
+          <div
+            style={{
+              marginBottom: "15px"
+            }}
+          >
+
+            <label
+              style={{
+                fontSize: "14px"
+              }}
+            >
+
+              <input
+
+                type="checkbox"
+
+                checked={
+                  showPassword
+                }
+
+                onChange={() =>
+                  setShowPassword(
+                    !showPassword
+                  )
+                }
+
+              />
+
+              {" "}
+              Show Password
+
+            </label>
+
+          </div>
+
+          <button
+
+            style={buttonStyle}
+
+            onClick={handleLogin}
+
+            disabled={loading}
+          >
+
+            {
+              loading
+
+                ? "Logging in..."
+
+                : "Login"
+            }
+
+          </button>
+
+          <div
+            style={{
+              marginTop: "20px",
+              textAlign: "center"
+            }}
+          >
+
+            <span
+
+              onClick={() =>
+                window.location.href =
+                  "/forgot-password"
+              }
+
+              style={{
+                color: "#2563eb",
+                cursor: "pointer",
+                fontWeight: "bold"
+              }}
+            >
+
+              Forgot Password?
+
+            </span>
+
+          </div>
+
+          <div
+            style={{
+              marginTop: "30px",
+              textAlign: "center",
+              fontSize: "12px",
+              color: "#64748b"
+            }}
+          >
+
+            🔒 Secure JWT Authentication
+
+            <br />
+
+            © 2027 Bauchi State Election Situation Room
+
+            <br />
+
+            Powered by MBR Design Technologies
+
+            <br />
+
+            Version 1.0.0
+
+          </div>
+
+        </div>
 
       </div>
 
@@ -201,7 +335,7 @@ if (role === "observer") {
 
 const containerStyle = {
 
-  height: "100vh",
+  minHeight: "100vh",
 
   display: "flex",
 
@@ -209,33 +343,103 @@ const containerStyle = {
 
   alignItems: "center",
 
-  backgroundColor: "#f2f2f2"
+  padding: "20px",
+
+  background:
+    "linear-gradient(135deg,#eaf2ff,#f8fafc)"
+};
+
+const wrapperStyle = {
+
+  width: "100%",
+
+  maxWidth: "1000px",
+
+  display: "flex",
+
+  flexWrap: "wrap",
+
+  backgroundColor: "#ffffff",
+
+  borderRadius: "18px",
+
+  overflow: "hidden",
+
+  boxShadow:
+    "0 20px 40px rgba(0,0,0,0.15)"
+};
+
+const leftPanelStyle = {
+
+  flex: 1,
+
+  minWidth: "320px",
+
+  padding: "50px",
+
+  background:
+    "linear-gradient(135deg,#0f172a,#1e3a8a)",
+
+  color: "#ffffff",
+
+  display: "flex",
+
+  flexDirection: "column",
+
+  justifyContent: "center"
 };
 
 const cardStyle = {
 
-  width: "400px",
+  flex: 1,
 
-  backgroundColor: "#fff",
+  minWidth: "320px",
 
-  padding: "40px",
+  padding: "50px",
 
-  borderRadius: "10px"
+  backgroundColor: "#ffffff",
+
+  display: "flex",
+
+  flexDirection: "column",
+
+  justifyContent: "center"
+};
+
+const systemTitleStyle = {
+
+  marginBottom: "10px"
+};
+
+const loginTitleStyle = {
+
+  marginBottom: "30px",
+
+  textAlign: "center"
+};
+
+const featureStyle = {
+
+  marginBottom: "12px",
+
+  fontSize: "15px"
 };
 
 const inputStyle = {
 
   width: "100%",
 
-  padding: "12px",
+  padding: "14px",
 
   marginBottom: "15px",
 
-  borderRadius: "5px",
+  borderRadius: "8px",
 
-  border: "1px solid #ccc",
+  border: "1px solid #d1d5db",
 
-  boxSizing: "border-box"
+  boxSizing: "border-box",
+
+  fontSize: "15px"
 };
 
 const buttonStyle = {
@@ -244,15 +448,19 @@ const buttonStyle = {
 
   padding: "14px",
 
-  backgroundColor: "green",
+  backgroundColor: "#16a34a",
 
-  color: "white",
+  color: "#ffffff",
 
   border: "none",
 
-  borderRadius: "5px",
+  borderRadius: "8px",
 
-  cursor: "pointer"
+  cursor: "pointer",
+
+  fontWeight: "bold",
+
+  fontSize: "15px"
 };
 
 export default Login;

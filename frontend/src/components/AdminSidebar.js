@@ -59,15 +59,13 @@ function AdminSidebar() {
 
   const handleLogout = () => {
 
-  localStorage.removeItem(
-    "token"
-  );
+  localStorage.clear();
 
-  localStorage.removeItem(
-    "user"
-  );
+  sessionStorage.clear();
 
-  window.location.href = "/";
+  window.location.replace(
+    "/login"
+  );
 };
 
   return (

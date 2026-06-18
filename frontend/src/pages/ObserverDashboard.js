@@ -21,7 +21,9 @@ function ObserverDashboard() {
 
         <div
   style={cardStyle}
-  onClick={() => navigate("/observer")}
+  onClick={() =>
+  navigate("/live-dashboard")
+}
 >
   Main Dashboard
 </div>

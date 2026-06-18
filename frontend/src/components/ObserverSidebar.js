@@ -8,6 +8,18 @@ function ObserverSidebar() {
 
   const navigate = useNavigate();
 
+  const handleLogout = () => {
+
+  localStorage.clear();
+
+  sessionStorage.clear();
+
+  window.location.replace(
+    "/login"
+  );
+
+};
+
   const menuItems = [
   
 
@@ -75,6 +87,18 @@ function ObserverSidebar() {
           </button>
         </Link>
       ))}
+
+      <button
+  style={{
+    ...buttonStyle,
+    backgroundColor: "#dc2626",
+    marginTop: "20px"
+  }}
+  onClick={handleLogout}
+>
+  Logout
+</button>
+
     </div>
   );
 }
