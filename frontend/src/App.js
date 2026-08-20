@@ -44,7 +44,8 @@ from "./pages/CollationDashboard";
 import {
   BrowserRouter,
   Routes,
-  Route
+  Route,
+  Navigate
 } from "react-router-dom";
 import UserManagement
 from "./pages/UserManagement";
@@ -142,11 +143,9 @@ const token =
   );
 
 const publicPages = [
-
+  "/",
   "/login",
-
   "/forgot-password"
-
 ];
 
 const isPublicPage =
@@ -1139,15 +1138,10 @@ return (
             <Route
   path="/"
   element={
-    <RoleRoute
-      allowedRoles={[
-        "super_admin",
-        "admin",
-        "observer"
-      ]}
-    >
-      <SituationRoomDashboard />
-    </RoleRoute>
+    <Navigate
+      to="/login"
+      replace
+    />
   }
 />
 

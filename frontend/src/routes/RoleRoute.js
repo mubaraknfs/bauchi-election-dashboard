@@ -5,24 +5,16 @@ import {
 } from "react-router-dom";
 
 function RoleRoute({
-
   children,
-
   allowedRoles
-
 }) {
 
   const token =
-    localStorage.getItem(
-      "token"
-    );
+    localStorage.getItem("token");
 
   const user =
     JSON.parse(
-
-      localStorage.getItem(
-        "user"
-      )
+      localStorage.getItem("user")
     );
 
   /*
@@ -34,7 +26,7 @@ function RoleRoute({
   if (!token || !user) {
 
     return (
-      <Navigate to="/" />
+      <Navigate to="/login" replace />
     );
   }
 
@@ -45,15 +37,11 @@ function RoleRoute({
   */
 
   if (
-
-    !allowedRoles.includes(
-      user.role
-    )
-
+    !allowedRoles.includes(user.role)
   ) {
 
     return (
-      <Navigate to="/" />
+      <Navigate to="/login" replace />
     );
   }
 

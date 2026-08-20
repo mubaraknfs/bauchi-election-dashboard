@@ -130,9 +130,9 @@ try {
 
     } else {
 
-      window.location.href =
-        "/";
-    }
+  window.location.href =
+    "/live-dashboard";
+}
 
   } else {
 
